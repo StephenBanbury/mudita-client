@@ -3,11 +3,47 @@
     {{ title }}
   </h1>
 </div>
-<h2>Images: </h2>
-<ul *ngFor="let imageJson of imageJsons">
-  <li>
-    <h2><a target="_blank" rel="noopener" href='{{ imageJson.urls.raw + "&w=1500&dpi=2" }}'>{{ imageJson.alt_description == null ? 'untitled' : imageJson.alt_description }}</a></h2>
-  </li>
-</ul>
+
+<h2>My Location:</h2>
+<div class="row">
+  <p>Latitude: {{ myLocation.latitude }}</p>
+  <p>Longitude: {{ myLocation.longitude }}</p>
+</div>
+
+<h3>Events</h3>
+<div class="row" *ngFor="let event of events">
+  {{ event.distance }} m <b *ngIf="event.distance <= 20">... close!</b>
+</div>
+
+<div class="row">
+  <agm-map #map (mapClick)="onSelectLocation($event)"
+    [latitude]="myLocation.latitude"
+    [longitude]="myLocation.longitude"
+    [zoom]="zoom">
+    <agm-marker
+      [latitude]="myLocation.latitude"
+      [longitude]="myLocation.longitude"
+      [label]="myMarkerLabelOptions"
+      [iconUrl]="myMarkerIconOptions">
+    </agm-marker>
+    <agm-marker *ngFor="let event of events"
+      [latitude]="event.location.latitude"
+      [longitude]="event.location.longitude">
+    </agm-marker>
+  </agm-map>
+</div>
+
+<h2>{{ statusMessage }}</h2>
+<div class="row">
+  <ul *ngFor="let imageJson of imageJsons">
+    <li>
+      <h2><a target="_blank" rel="noopener"
+          href='{{ imageJson.urls.raw + "&w=1500&dpi=2" }}'>{{ imageJson.alt_description == null ? 'untitled' : imageJson.alt_description }}</a>
+      </h2>
+    </li>
+  </ul>
+</div>
+
 
 <router-outlet></router-outlet>
+

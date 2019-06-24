@@ -6,6 +6,13 @@ import { AgmCoreModule } from '@agm/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+
+import { AngularFirestoreModule } from '@angular/fire/firestore'
+import { AngularFireModule } from '@angular/fire';
+
+//import { AngularFireAuthModule } from '@angular/fire/auth';
+import { environment } from './../environments/environment';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'; // material animations
 import { MatButtonModule, MatCheckboxModule } from '@angular/material'; // for example
 
@@ -21,6 +28,8 @@ import { MatButtonModule, MatCheckboxModule } from '@angular/material'; // for e
     BrowserAnimationsModule,
     MatButtonModule,
     MatCheckboxModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFirestoreModule,
     HttpClientModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCSXgPI_1LG_thKRrq92Mu-rfnnUskP9-w'
