@@ -1,7 +1,7 @@
-import { LocationObject } from './location-object.model';
+import { FenceObject } from './fence-object-model';
 
 export class EventObject {
-  public location: LocationObject;
-  public distance: number;
-  public selected: boolean;
+  public id: number;
+  public title: string;
+  public fences: FenceObject[];
 }

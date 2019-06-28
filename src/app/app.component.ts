@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from './shared/api.service';
 import { IUnsplashImage } from './shared/unsplash-image';
 import { LocationObject } from './shared/location-object.model';
-import { EventObject } from './shared/event-object.model';
 import { Observable } from 'rxjs';
 import { LocationService } from './shared/location.service';
+import { EventObject } from './shared/event-object.model';
+import { FenceObject } from './shared/fence-object-model';
 
 @Component({
   selector: 'app-root',
@@ -12,31 +13,39 @@ import { LocationService } from './shared/location.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  title = 'mudita-client';
-  private interval: any;
+  title = 'Mudita';
 
+  //private interval: any;
+  myEvent: EventObject;
   myLocation: LocationObject;
-  events: Array<EventObject>;
-  statusMessage: string;
-  zoom: number;
   myMarkerLabelOptions: any;
   myMarkerIconOptions: any;
+  events: Array<EventObject>;
+  eventSelected: boolean;
+  closeMetres: number;
+  reallyCloseMetres: number;
+
+  statusMessage: string;
+  zoom: number;
 
   locationObservable: Observable<LocationObject>;
 
   imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
 
   constructor(private apiService: ApiService, private locationService: LocationService) {
+    this.myEvent = new EventObject();
     this.myLocation = new LocationObject();
     this.events = new Array<EventObject>();
-    //this.eventLocations.push(new LocationObject());
-    this.zoom = 17;
+    this.closeMetres = 10;
+    this.reallyCloseMetres = 5;
+
+    this.zoom = 18;
     this.myMarkerLabelOptions = {
       color: '#000',
       fontFamily: '',
       fontSize: '16px',
       fontWeight: 'bold',
-      text: 'Me',
+      text: 'ME',
     }
     this.myMarkerIconOptions = {
       url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
@@ -48,6 +57,8 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.eventSelected = false;
+    this.events = this.apiService.getEventBasicDetails();
     this.trackMyLocation();
   }
 
@@ -56,28 +67,59 @@ export class AppComponent implements OnInit {
   }
 
   // TODO this may be used to for something, so it's staying here for now
-  start() {
-    this.interval = setInterval(() => {
-      this.frame();
-    }, 30 * 60);
+  // start() {
+  //   this.interval = setInterval(() => {
+  //     this.frame();
+  //   }, 30 * 60);
+  // }
+
+  // private frame() {
+  // }
+
+  onSelectEvent(event: EventObject) {
+    this.eventSelected = true;
+    this.getEventDataFromApi(event.id);
+    this.checkForLocalEventFences();
   }
 
-  private frame() {
+  getEventDataFromApi(eventId: number) {
+    const eventData = this.apiService.getEventDetails(eventId);
+
+    this.myEvent.id = eventData.eventId;
+    this.myEvent.title = eventData.title;
+    this.myEvent.fences = new Array<FenceObject>();
+
+    eventData.fence.forEach(fence => {
+      const newFence = new FenceObject();
+      const newFenceLocation = new LocationObject();
+      newFenceLocation.latitude = fence.latitude;
+      newFenceLocation.longitude = fence.longitude;
+      newFence.location = newFenceLocation;
+      newFence.text = fence.text;
+      newFence.imageUrl = fence.imageUrl;
+      newFence.tag = fence.tag;
+      newFence.selected = true;
+      this.myEvent.fences.push(newFence);
+    });
   }
 
   onSelectLocation(event) {
-    const newEvent = new EventObject();
-    const newEventLocation = new LocationObject();
+    if(!this.eventSelected){
+      return;
+    }
+    const newFence = new FenceObject();
+    const newFenceLocation = new LocationObject();
 
-    newEventLocation.latitude = event.coords.lat;
-    newEventLocation.longitude = event.coords.lng;
+    newFenceLocation.latitude = event.coords.lat;
+    newFenceLocation.longitude = event.coords.lng;
 
-    newEvent.location = newEventLocation;
-    newEvent.selected = true;
+    newFence.location = newFenceLocation;
+    newFence.tag = "New fence " + (this.myEvent.fences.length + 1).toString();
+    newFence.selected = true;
 
-    this.events.push(newEvent);
+    this.myEvent.fences.push(newFence);
 
-    this.checkForLocalEvents();
+    this.checkForLocalEventFences();
   }
 
   trackMyLocation() {
@@ -87,7 +129,9 @@ export class AppComponent implements OnInit {
         this.myLocation.longitude = newLocation.coords.longitude;
         this.myLocation.accuracy = newLocation.coords.accuracy;
 
-        this.checkForLocalEvents();
+        if(this.eventSelected){
+          this.checkForLocalEventFences();
+        }
       }
     )
   }
@@ -96,27 +140,42 @@ export class AppComponent implements OnInit {
     this.locationService.stopWatchLocation();
   }
 
-  private checkForLocalEvents() {
-    if(this.events.length == 0){
+  private checkForLocalEventFences() {
+
+    if(this.myEvent.fences.length == 0){
       this.statusMessage = 'No events nearby';
       return false;
     }
 
-    this.events.forEach(e => e.distance = Math.round(
+    this.myEvent.fences.forEach(e => e.distance = Math.round(
       this.locationService.getDistanceFromLatLonInKm(
       this.myLocation.latitude, this.myLocation.longitude,
       e.location.latitude, e.location.longitude)));
 
-    this.events.sort((a, b) => a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0);
+    this.myEvent.fences.sort((a, b) => a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0);
 
-    if(this.events[0].distance <= 20){
-      this.statusMessage = "There is an event close by! Here's a random image from Unsplash's API for you..";
-      if(this.imageJsons.length == 0){
-        this.getImage();
+    if(this.myEvent.fences[0].distance <= this.closeMetres){
+      this.statusMessage = 'There is a zone close by!'; // Here's a random image from Unsplash's API for you..';
+      this.myMarkerIconOptions = {
+        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+        scaledSize: {
+          width: 40,
+          height: 40
+        }
       }
+      // if(this.imageJsons.length == 0){
+      //   this.getImage();
+      // }
     } else {
-      this.statusMessage = "No events nearby";
-      this.imageJsons = new Array<IUnsplashImage>();
+      this.statusMessage = 'No zones nearby';
+      this.myMarkerIconOptions = {
+        url: 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png',
+        scaledSize: {
+          width: 40,
+          height: 40
+        }
+      }
+      //this.imageJsons = new Array<IUnsplashImage>();
     }
   }
 

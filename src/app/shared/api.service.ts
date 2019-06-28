@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IUnsplashImage } from './unsplash-image';
+import { EventObject } from '../shared/event-object.model';
+
+import { MuditaApi } from '../shared/mock-api';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +17,30 @@ export class ApiService {
   soundApiUrl = "";
   soundApiKey = "";
 
+  events: Array<EventObject>
 
   constructor(private http: HttpClient) { }
+
+  getEventBasicDetails(): Array<EventObject> {
+    this.events = new Array<EventObject>();
+    const eventsData = MuditaApi;
+
+    eventsData.event.forEach(event => {
+      let newEvent = new EventObject();
+      newEvent.id = event.eventId;
+      newEvent.title = event.title;
+
+      this.events.push(newEvent);
+    })
+
+    return this.events;
+  }
+
+  getEventDetails(eventId: number) {
+    let event: any;
+    event = MuditaApi.event.filter(event => event.eventId == eventId);
+    return event[0];
+  }
 
   getImage() {
     const url = this.imageApiUrl + this.imageApiKey;
