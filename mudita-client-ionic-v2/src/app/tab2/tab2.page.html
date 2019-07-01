@@ -1,17 +1,63 @@
 <ion-header>
     <ion-toolbar>
       <ion-title>
-       AGM Demo - Ionic 4
+       Medita Events
       </ion-title>
     </ion-toolbar>
   </ion-header>
   <ion-content>
     
-      <agm-map
-       [style.height.px]="height"
-       [latitude]="lat"
-       [longitude]="lng">
-         <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+    <div class="container">
+      <div class="row">
+        <div class="col" *ngFor="let event of events" (click)="onSelectEvent(event)">
+          <b>{{ event.title }}</b>
+        </div>
+        <div class="col">
+        <h3 *ngIf="eventSelected" style="color: red">Selected Event: {{ myEvent.title }}</h3>
+      </div>
+      </div>
+      <div class="row>">
+        <div class="col">
+        <h2>{{ statusMessage }}</h2>
+      </div>
+        <div class="col" *ngIf="eventSelected">
+          <div *ngFor="let fence of myEvent.fences">
+            {{ fence.tag }} ({{ fence.distance }} m) <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <agm-map #map      
+        (mapClick)="onSelectLocation($event)"   
+        [style.height.px]="height"
+        [latitude]="myLocation.latitude" 
+        [longitude]="myLocation.longitude" 
+        [zoom]="zoom">
+        <agm-marker 
+          [latitude]="myLocation.latitude" 
+          [longitude]="myLocation.longitude" 
+          [label]="myMarkerLabelOptions"
+          [iconUrl]="myMarkerIconOptions">
+        </agm-marker>
+        <div *ngFor="let fence of myEvent.fences">
+          <agm-marker *ngIf="fence.selected==true" 
+            [latitude]="fence.location.latitude"
+            [longitude]="fence.location.longitude">
+          </agm-marker>
+        </div>
       </agm-map>
-      
+    </div>
+  
+    <div class="row">
+      <ul *ngFor="let imageJson of imageJsons">
+        <li>
+          <h2><a target="_blank" rel="noopener"
+              href='{{ imageJson.urls.raw + "&w=1500&dpi=2" }}'>{{ imageJson.alt_description == null ? 'untitled' : imageJson.alt_description }}</a>
+          </h2>
+        </li>
+      </ul>
+    </div>
+  
   </ion-content>
