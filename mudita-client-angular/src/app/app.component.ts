@@ -12,7 +12,7 @@ import { FenceObject } from './shared/fence-object-model';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {//} implements OnInit {
   title = 'Mudita';
 
   //private interval: any;
