@@ -1,0 +1,17 @@
+<ion-header>
+    <ion-toolbar>
+      <ion-title>
+       AGM Demo - Ionic 4
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content>
+    
+      <agm-map
+       [style.height.px]="height"
+       [latitude]="lat"
+       [longitude]="lng">
+         <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+      </agm-map>
+      
+  </ion-content>
