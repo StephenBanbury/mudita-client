@@ -125,11 +125,10 @@ export class Tab2Page {
 
         console.log('newLocation', newLocation);
 
-        if(this.eventSelected){
+        if (this.eventSelected) {
           this.checkForLocalEventFences();
         }
-      }
-    )
+      })
   }  
 
   stopTrackMyLocation() {
