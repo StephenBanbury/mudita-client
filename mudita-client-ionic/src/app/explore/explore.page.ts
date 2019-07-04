@@ -7,13 +7,14 @@ import { EventObject } from '../shared/event-object.model'
 import { FenceObject } from '../shared/fence-object-model';
 import { LocationObject } from '../shared/location-object.model'
 import { MuditaApiService } from '../services/mudita-api.service';
+//import { ToastController } from '@ionic/angular';
 
 @Component({
-  selector: 'app-tab2',
-  templateUrl: 'tab2.page.html',
-  styleUrls: ['tab2.page.scss']
+  selector: 'app-explore',
+  templateUrl: 'explore.page.html',
+  styleUrls: ['explore.page.scss']
 })
-export class Tab2Page {
+export class ExplorePage {
   title: string = 'Mudita Events';
   height = 0;
   
@@ -22,7 +23,7 @@ export class Tab2Page {
   myMarkerLabelOptions: any;
   myMarkerIconOptions: any;
   events: Array<EventObject>;
-  eventSelected: boolean;
+  eventIsSelected: boolean;
   closeMetres: number;
   reallyCloseMetres: number;
 
@@ -33,9 +34,15 @@ export class Tab2Page {
 
   imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
 
-  constructor(public platform: Platform, private locationService: LocationService, private muditaApiServce: MuditaApiService) {
+  constructor(
+    public platform: Platform,
+    //public toastController: ToastController,
+    private locationService: LocationService,
+    private muditaApiServce: MuditaApiService
+  ) {
+
     this.height = platform.height() - 56;
-    
+
     this.myEvent = new EventObject();
     this.myLocation = new LocationObject();
     this.events = new Array<EventObject>();
@@ -61,7 +68,7 @@ export class Tab2Page {
   
 
   ngOnInit() {
-    this.eventSelected = false;
+    this.eventIsSelected = false;
     this.events = this.muditaApiServce.getEventBasicDetails();
     this.trackMyLocation();
   }
@@ -70,9 +77,17 @@ export class Tab2Page {
     this.stopTrackMyLocation
   }  
 
-  onSelectEvent(event: EventObject) {
-    this.eventSelected = true;
+  async onSelectEvent(event: EventObject) {
+    this.eventIsSelected = true;
     this.getEventDataFromApi(event.id);
+
+    // const toast = await this.toastController.create({
+    //   message: `${event.title} selected`,
+    //   duration: 3000,
+    //   position: 'middle'
+    // });    
+    // toast.present();
+
     this.checkForLocalEventFences();
   }
 
@@ -98,7 +113,7 @@ export class Tab2Page {
   }
 
   onSelectLocation(event) {
-    if(!this.eventSelected){
+    if(!this.eventIsSelected){
       return;
     }
     const newFence = new FenceObject();
@@ -122,10 +137,7 @@ export class Tab2Page {
         this.myLocation.latitude = newLocation.coords.latitude;
         this.myLocation.longitude = newLocation.coords.longitude;
         this.myLocation.accuracy = newLocation.coords.accuracy;
-
-        console.log('newLocation', newLocation);
-
-        if (this.eventSelected) {
+        if (this.eventIsSelected) {
           this.checkForLocalEventFences();
         }
       })

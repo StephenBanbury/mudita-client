@@ -17,20 +17,20 @@ const routes: Routes = [
         ]
       },
       {
-        path: 'tab2',
+        path: 'explore',
         children: [
           {
             path: '',
-            loadChildren: '../tab2/tab2.module#Tab2PageModule'
+            loadChildren: '../explore/explore.module#ExplorePageModule'
           }
         ]
       },
       {
-        path: 'tab3',
+        path: 'text-content',
         children: [
           {
             path: '',
-            loadChildren: '../tab3/tab3.module#Tab3PageModule'
+            loadChildren: '../text-content/text-content.module#TextContentPageModule'
           }
         ]
       },

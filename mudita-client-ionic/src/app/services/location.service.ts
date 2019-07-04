@@ -16,7 +16,7 @@ export class LocationService {
         this.watchId = navigator.geolocation.watchPosition(position => {
           observer.next(position);
           observer.complete;
-          //console.log('watchLocationObservable', position);
+          console.log('watchLocationObservable', position);
         },
           (error: PositionError) => console.log(error),
           { enableHighAccuracy: true }
@@ -32,6 +32,9 @@ export class LocationService {
   }
 
   getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+    // console.log('lat1,lon1',lat1, lon1);
+    // console.log('lat2,lon2',lat2, lon2);
+
     let R = 6371; // Radius of the earth in km
     let dLat = this.deg2rad(lat2-lat1);  // deg2rad below
     let dLon = this.deg2rad(lon2-lon1);
