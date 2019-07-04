@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar color="primary" text-center>
+    <ion-title>
+      Mudita
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    <ion-card class="welcome-card">
+      <ion-img src="/assets/shapes.svg"></ion-img>
+      <ion-card-header>
+        <ion-card-subtitle>Get Started</ion-card-subtitle>
+        <ion-card-title>Welcome to Mudita</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec libero quam, ultrices dapibus metus et, viverra bibendum nunc. Sed ut dolor ac diam scelerisque consectetur.</p>
+      </ion-card-content>
+    </ion-card>
+    <ion-list lines="none">
+      <ion-list-header color="dark">
+        <ion-label>Select event</ion-label>
+      </ion-list-header>
+      <ion-item *ngFor="let event of events" (click)="onSelectEvent(event)">
+        <!-- <ion-icon slot="start" color="medium" name="book"></ion-icon> -->
+        <ion-button (click)="navigateToExplore(event.id)">{{ event.title }}</ion-button>
+      </ion-item>
+    </ion-list>
+</ion-content>

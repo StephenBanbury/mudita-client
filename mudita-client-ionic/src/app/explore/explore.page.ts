@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Observable } from 'rxjs';
-import { IUnsplashImage } from '../shared/unsplash-image';
-import { LocationService } from '../services/location.service'
-import { EventObject } from '../shared/event-object.model'
-import { FenceObject } from '../shared/fence-object-model';
-import { LocationObject } from '../shared/location-object.model'
-import { MuditaApiService } from '../services/mudita-api.service';
+import { LocationService } from '../../services/location.service'
+import { EventObject } from '../../shared/event-object.model'
+import { FenceObject } from '../../shared/fence-object-model';
+import { LocationObject } from '../../shared/location-object.model'
+import { MuditaApiService } from '../../services/mudita-api.service';
+
+import { IUnsplashImage } from '../../shared/unsplash-image';
+
 //import { ToastController } from '@ionic/angular';
 
 @Component({
@@ -36,9 +38,9 @@ export class ExplorePage {
 
   constructor(
     public platform: Platform,
-    //public toastController: ToastController,
     private locationService: LocationService,
     private muditaApiServce: MuditaApiService
+    //public toastController: ToastController,
   ) {
 
     this.height = platform.height() - 56;
@@ -77,7 +79,7 @@ export class ExplorePage {
     this.stopTrackMyLocation
   }  
 
-  async onSelectEvent(event: EventObject) {
+  onSelectEvent(event: EventObject) {
     this.eventIsSelected = true;
     this.getEventDataFromApi(event.id);
 

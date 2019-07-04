@@ -6,14 +6,16 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-content>    
-    <ion-item>
-      <div>
-        <div *ngFor="let event of events" (click)="onSelectEvent(event)">
-          <label >{{ event.title }}</label><label *ngIf="myEvent.title == event.title"> - selected</label>
+  <ion-content>  
+    <ion-card>
+      <ion-item>
+        <div>
+          <div *ngFor="let event of events" (click)="onSelectEvent(event)">
+            <label >{{ event.title }}</label><label *ngIf="myEvent.title == event.title"> - selected</label>
+          </div>
         </div>
-      </div>
-    </ion-item>
+      </ion-item>
+    </ion-card>  
 
     <div>
       <agm-map #map      
@@ -50,7 +52,7 @@
   </ion-content>
 
   <ion-footer>
-    <ion-toolbar color="medium" style="text-align: center" *ngIf="eventIsSelected">
+      <ion-card color="medium" style="text-align: center" *ngIf="eventIsSelected">
         <div>
           <h2>{{ statusMessage }}</h2>
         </div>
@@ -58,5 +60,5 @@
           {{ fence.tag }} ({{ fence.distance }} m) <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
         </div>
         <br>
-    </ion-toolbar>
+      </ion-card>
   </ion-footer>

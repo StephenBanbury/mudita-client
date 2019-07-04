@@ -3,8 +3,8 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: '', loadChildren: './tabs/tabs.module#TabsPageModule' },
-  // { path: 'text-content', loadChildren: './text-content/text-content.module#TextContentPageModule' },
-  // { path: 'explore', loadChildren: './explore/explore.module#ExplorePageModule' }
+  { path: 'explore', loadChildren: './explore/explore.module#ExplorePageModule' },
+  { path: 'fence', loadChildren: './fence/fence.module#FenceModule' },
 
 ];
 @NgModule({
