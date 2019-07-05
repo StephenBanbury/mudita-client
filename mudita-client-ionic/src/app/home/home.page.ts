@@ -14,7 +14,11 @@ export class HomePage implements OnInit {
   events: Array<EventObject>;
   eventIsSelected: boolean;
 
-  constructor(private muditaApiServce: MuditaApiService, private navCtrl: NavController, private router: Router) {
+  constructor(
+    private muditaApiServce: MuditaApiService, 
+    private navCtrl: NavController, 
+    private router: Router
+  ) {
     this.myEvent = new EventObject();
     this.events = new Array<EventObject>();
   }
@@ -41,8 +45,8 @@ export class HomePage implements OnInit {
   // TODO check navigation control in docs etc. Is this right, or even the best way?
   navigateToExplore(eventId: number) {
     console.log('eventId', eventId);
-    this.navCtrl.navigateForward('tabs/explore');
-    //this.router.navigate(['/explore']);
+    //this.navCtrl.navigateForward('tabs/explore');
+    this.router.navigate(['/tabs/explore']);
   }
 
   getEventDataFromApi(eventId: number) {

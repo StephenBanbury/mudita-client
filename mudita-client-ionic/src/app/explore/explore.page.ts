@@ -43,7 +43,7 @@ export class ExplorePage {
     //public toastController: ToastController,
   ) {
 
-    this.height = platform.height() - 56;
+    this.height = platform.height() - 156;
 
     this.myEvent = new EventObject();
     this.myLocation = new LocationObject();
