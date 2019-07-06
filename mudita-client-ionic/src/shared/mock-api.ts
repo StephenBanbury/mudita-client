@@ -84,6 +84,14 @@ export const MuditaApi = {
         "longitude": -3.1861923964958123,
         "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper nisl ac nibh dapibus, non lacinia ante mollis. Etiam et convallis eros, et semper ipsum. Maecenas quis euismod elit. Cras lacus eros, lobortis sed orci ac, posuere sagittis lacus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris venenatis risus eget ex aliquet, at efficitur ligula imperdiet. Ut elementum accumsan rutrum. Suspendisse nec facilisis nulla. Curabitur sapien ipsum, vulputate cursus lectus eget, varius tempus metus. Suspendisse odio nulla, consequat sit amet faucibus ac, rhoncus id justo. Aenean a urna leo. Praesent nec est sem. Integer facilisis, tortor vitae finibus consequat, leo nisl feugiat libero, a consectetur ex urna in nulla.",
         "imageUrl": "https://images.pexels.com/photos/257360/pexels-photo-257360.jpeg?auto=format%2Ccompress&cs=tinysrgb&dpr=1&w=500"
+      },
+      {
+        "fenceId": 6,
+        "tag": "Double Agent Place",
+        "latitude": 51.17111545806176,
+        "longitude": -3.2861923964958123,
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris semper nisl ac nibh dapibus, non lacinia ante mollis. Etiam et convallis eros, et semper ipsum. Maecenas quis euismod elit. Cras lacus eros, lobortis sed orci ac, posuere sagittis lacus. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Mauris venenatis risus eget ex aliquet, at efficitur ligula imperdiet. Ut elementum accumsan rutrum. Suspendisse nec facilisis nulla. Curabitur sapien ipsum, vulputate cursus lectus eget, varius tempus metus. Suspendisse odio nulla, consequat sit amet faucibus ac, rhoncus id justo. Aenean a urna leo. Praesent nec est sem. Integer facilisis, tortor vitae finibus consequat, leo nisl feugiat libero, a consectetur ex urna in nulla.",
+        "imageUrl": "https://images.pexels.com/photos/257360/pexels-photo-257360.jpeg?auto=format%2Ccompress&cs=tinysrgb&dpr=1&w=500"
       }],
   }],
 }

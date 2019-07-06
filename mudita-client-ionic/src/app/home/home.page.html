@@ -20,7 +20,7 @@
       <ion-list-header color="dark">
         <ion-label>Select event</ion-label>
       </ion-list-header>
-      <ion-item *ngFor="let event of events" (click)="onSelectEvent(event)">
+      <ion-item *ngFor="let event of events">
         <!-- <ion-icon slot="start" color="medium" name="book"></ion-icon> -->
         <ion-button (click)="navigateToExplore(event)">{{ event.title }}</ion-button>
       </ion-item>

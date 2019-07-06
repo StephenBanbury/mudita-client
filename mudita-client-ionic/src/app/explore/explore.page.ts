@@ -20,7 +20,6 @@ import { ToastController } from '@ionic/angular';
 export class ExplorePage {
   title: string = "Mudita Events";
   height = 0;
-
   myEvent: EventObject;
   myLocation: LocationObject;
   myMarkerLabelOptions: any;
@@ -28,12 +27,9 @@ export class ExplorePage {
   eventId: number;
   closeMetres: number;
   reallyCloseMetres: number;
-
   statusMessage: string;
   zoom: number;
-
   locationObservable: Observable<LocationObject>;
-
   imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
 
   constructor(
@@ -43,13 +39,12 @@ export class ExplorePage {
     private muditaApiServce: MuditaApiService,
     public toastController: ToastController
   ) {
-    
+    console.log('constructor');
     this.route.params.subscribe();
     this.height = platform.height() - 56;
     this.myLocation = new LocationObject();
     this.closeMetres = 10;
     this.reallyCloseMetres = 5;
-
     this.zoom = 18;
     this.myMarkerLabelOptions = {
       color: "#000",
@@ -69,20 +64,17 @@ export class ExplorePage {
 
   ngOnInit() {
 
+    console.log('onInit');
+
     this.route.queryParams.subscribe(params => {
-      console.log('params', params);
       this.eventId = params["eventId"];
       if (this.eventId) {
-        this.getEventDataFromApi(this.eventId);
-      }
-      console.log(this.myEvent);
+        console.log('subscribed to params. eventId:', this.eventId);
 
-      // const toast = await this.toastController.create({
-      //   message: `${event.title} selected`,
-      //   duration: 3000,
-      //   position: "middle"
-      // });
-      // toast.present();
+        this.getEventDataFromApi(this.eventId);
+        this.checkForLocalEventFences();
+
+      }
     });
 
     this.trackMyLocation();
@@ -90,6 +82,19 @@ export class ExplorePage {
 
   ngOnDestroy() {
     this.stopTrackMyLocation;
+  }
+
+  trackMyLocation() {
+    console.log('trackMyLocation');
+    this.locationService.watchMyLocation().subscribe(newLocation => {
+      console.log('subscribed to location service. newLocation:', newLocation);
+      this.myLocation.latitude = newLocation.coords.latitude;
+      this.myLocation.longitude = newLocation.coords.longitude;
+      this.myLocation.accuracy = newLocation.coords.accuracy;
+      if (this.myEvent) {
+        this.checkForLocalEventFences();
+      }
+    });
   }
 
   getEventDataFromApi(eventId: number) {
@@ -113,7 +118,7 @@ export class ExplorePage {
       newFence.selected = true;
       this.myEvent.fences.push(newFence);
     });
-    console.log('getEventFromApi', this.myEvent.fences);
+    console.log('getEventFromApi. myEvent:', this.myEvent);
   }
 
   onSelectLocation(event) {
@@ -135,17 +140,6 @@ export class ExplorePage {
     this.checkForLocalEventFences();
   }
 
-  trackMyLocation() {
-    this.locationService.watchLocation().subscribe(newLocation => {
-      this.myLocation.latitude = newLocation.coords.latitude;
-      this.myLocation.longitude = newLocation.coords.longitude;
-      this.myLocation.accuracy = newLocation.coords.accuracy;
-      if (this.myEvent) {
-        this.checkForLocalEventFences();
-      }
-    });
-  }
-
   stopTrackMyLocation() {
     this.locationService.stopWatchLocation();
   }
@@ -154,7 +148,7 @@ export class ExplorePage {
     console.log("checkForLocalEventFences");
 
     if (this.myEvent.fences.length == 0) {
-      this.statusMessage = "No events nearby";
+      this.statusMessage = "This event has no fences!";
       return false;
     }
 
@@ -187,7 +181,7 @@ export class ExplorePage {
       //   this.getImage();
       // }
     } else {
-      this.statusMessage = "No zones nearby";
+      this.statusMessage = "No events nearby";
       this.myMarkerIconOptions = {
         url: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",
         scaledSize: {

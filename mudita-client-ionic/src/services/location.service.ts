@@ -10,13 +10,13 @@ export class LocationService {
 
   constructor() { }
 
-  watchLocation(): Observable<any> {
+  watchMyLocation(): Observable<any> {
     return Observable.create(observer => {
       if (navigator.geolocation) {
         this.watchId = navigator.geolocation.watchPosition(position => {
           observer.next(position);
           observer.complete;
-          console.log('watchLocationObservable', position);
+          //console.log('watchLocationObservable', position);
         },
           (error: PositionError) => console.log(error),
           { enableHighAccuracy: true }
