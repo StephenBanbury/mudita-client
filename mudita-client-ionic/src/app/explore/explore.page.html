@@ -1,7 +1,7 @@
 <ion-header>
     <ion-toolbar color="primary"  style="text-align: center">
       <ion-title>
-       Medita Events
+       Mudita
       </ion-title>
     </ion-toolbar>
   </ion-header>
@@ -9,11 +9,11 @@
   <ion-content>  
     <ion-card>
       <ion-item>
-        <div>
-          <div *ngFor="let event of events" (click)="onSelectEvent(event)">
-            <label >{{ event.title }}</label><label *ngIf="myEvent.title == event.title"> - selected</label>
-          </div>
-        </div>
+        <ion-label text-center>
+        <h1 *ngIf="myEvent">
+          {{ myEvent.title }}
+        </h1>
+      </ion-label>
       </ion-item>
     </ion-card>  
 
@@ -52,7 +52,7 @@
   </ion-content>
 
   <ion-footer>
-      <ion-card color="medium" style="text-align: center" *ngIf="eventIsSelected">
+      <ion-card color="medium" style="text-align: center" *ngIf="myEvent">
         <div>
           <h2>{{ statusMessage }}</h2>
         </div>

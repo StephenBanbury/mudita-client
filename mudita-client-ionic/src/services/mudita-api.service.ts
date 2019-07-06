@@ -16,12 +16,10 @@ export class MuditaApiService {
   soundApiUrl = "";
   soundApiKey = "";
 
-  events: Array<EventObject>
-
   constructor(private http: HttpClient) { }
 
   getEventBasicDetails(): Array<EventObject> {
-    this.events = new Array<EventObject>();
+    let events = new Array<EventObject>();
     const eventsData = MockApi;
 
     eventsData.event.forEach(event => {
@@ -29,10 +27,10 @@ export class MuditaApiService {
       newEvent.id = event.eventId;
       newEvent.title = event.title;
 
-      this.events.push(newEvent);
+      events.push(newEvent);
     })
 
-    return this.events;
+    return events;
   }
 
   getEventDetails(eventId: number) {

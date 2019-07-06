@@ -5,7 +5,6 @@
     </ion-title>
   </ion-toolbar>
 </ion-header>
-
 <ion-content>
     <ion-card class="welcome-card">
       <ion-img src="/assets/shapes.svg"></ion-img>
@@ -23,7 +22,7 @@
       </ion-list-header>
       <ion-item *ngFor="let event of events" (click)="onSelectEvent(event)">
         <!-- <ion-icon slot="start" color="medium" name="book"></ion-icon> -->
-        <ion-button (click)="navigateToExplore(event.id)">{{ event.title }}</ion-button>
+        <ion-button (click)="navigateToExplore(event)">{{ event.title }}</ion-button>
       </ion-item>
     </ion-list>
 </ion-content>

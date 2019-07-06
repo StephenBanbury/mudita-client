@@ -16,7 +16,6 @@ export class HomePage implements OnInit {
 
   constructor(
     private muditaApiServce: MuditaApiService, 
-    private navCtrl: NavController, 
     private router: Router
   ) {
     this.myEvent = new EventObject();
@@ -43,10 +42,9 @@ export class HomePage implements OnInit {
   }
 
   // TODO check navigation control in docs etc. Is this right, or even the best way?
-  navigateToExplore(eventId: number) {
-    console.log('eventId', eventId);
-    //this.navCtrl.navigateForward('tabs/explore');
-    this.router.navigate(['/tabs/explore']);
+  navigateToExplore(event: EventObject) {
+    console.log('navigateToExplore', event.id);
+    this.router.navigate(['/tabs/explore'], { queryParams: { eventId: event.id } });
   }
 
   getEventDataFromApi(eventId: number) {
