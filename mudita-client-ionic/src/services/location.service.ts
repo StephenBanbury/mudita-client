@@ -16,7 +16,7 @@ export class LocationService {
         this.watchId = navigator.geolocation.watchPosition(position => {
           observer.next(position);
           observer.complete;
-          //console.log('watchLocationObservable', position);
+          console.log('watchLocationObservable', position);
         },
           (error: PositionError) => console.log(error),
           { enableHighAccuracy: true }

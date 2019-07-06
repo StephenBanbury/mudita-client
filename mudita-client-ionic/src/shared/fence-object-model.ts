@@ -8,4 +8,5 @@ export class FenceObject {
   public text: string;
   public imageUrl: string;
   public selected: boolean;
+  public show: boolean;
 }

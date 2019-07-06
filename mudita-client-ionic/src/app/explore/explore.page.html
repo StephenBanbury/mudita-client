@@ -19,7 +19,7 @@
 
     <div>
       <agm-map #map      
-        (mapClick)="onSelectLocation($event)"   
+        (mapClick)="onCreateNewFence($event)"   
         [style.height.px]="height"
         [latitude]="myLocation.latitude" 
         [longitude]="myLocation.longitude" 
@@ -31,7 +31,7 @@
           [iconUrl]="myMarkerIconOptions">
         </agm-marker>
         <div *ngFor="let fence of myEvent.fences">
-          <agm-marker *ngIf="fence.selected==true" 
+          <agm-marker *ngIf="fence.show == true" 
             [latitude]="fence.location.latitude"
             [longitude]="fence.location.longitude">
           </agm-marker>
@@ -56,9 +56,15 @@
         <div>
           <h2>{{ statusMessage }}</h2>
         </div>
-        <div *ngFor="let fence of myEvent.fences">
-          {{ fence.tag }} ({{ fence.distance }} m) <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
+        <div>
+          <ion-button *ngIf="myEvent.fences[0].selected == true" (click)="onSelectFence()">
+            NAV AWAY!
+          </ion-button>
         </div>
+        <!-- <div *ngFor="let fence of myEvent.fences">
+          {{ fence.tag }} ({{ fence.distance }} m) {{ fence.show }} 
+          <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
+        </div> -->
         <br>
       </ion-card>
   </ion-footer>

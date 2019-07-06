@@ -27,9 +27,7 @@ export class HomePage implements OnInit {
     this.events = this.muditaApiServce.getEventBasicDetails();
   }
 
-  // TODO check navigation control in docs etc. Is this right, or even the best way?
-  navigateToExplore(event: EventObject) {
-    //console.log('navigateToExplore', event.id);
+  onSelectEvent(event: EventObject) {
     this.router.navigate(['/tabs/explore'], { queryParams: { eventId: event.id } });
   }
 
