@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -8,23 +9,22 @@ export class LocationService {
 
   watchId: number;
 
-  constructor() { }
+  constructor(private geolocation: Geolocation) { }
 
   watchMyLocation(): Observable<any> {
-    return Observable.create(observer => {
-      if (navigator.geolocation) {
-        this.watchId = navigator.geolocation.watchPosition(position => {
-          observer.next(position);
-          observer.complete;
-          console.log('watchLocationObservable', position);
-        },
-          (error: PositionError) => console.log(error),
-          { enableHighAccuracy: true }
-        )
-      } else {
-        alert("Geolocation is not supported by this browser.");
-      }
+
+    let options = {
+      enableHighAccuracy: true,
+      timeout: 8000,
+      maximumAge: 7000,
+    };
+
+    let watch = this.geolocation.watchPosition(options);
+    watch.subscribe((data) => {
+      console.log('watchLocationObservable', data);
     });
+
+    return watch;
   }
 
   stopWatchLocation() {
