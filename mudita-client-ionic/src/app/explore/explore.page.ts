@@ -73,7 +73,7 @@ export class ExplorePage {
       this.eventId = params["eventId"];
       if (this.eventId) {
         console.log('subscribed to params. eventId:', this.eventId);
-        this.getEventDataFromApi(this.eventId);
+        this.getEventDetails(this.eventId);
         if(this.trackingMyLocation) {
           this.checkForLocalEventFences();
         }
@@ -101,22 +101,19 @@ export class ExplorePage {
     this.trackingMyLocation = true;
   }
   
-  getEventDataFromApi(eventId: number) {
+  getEventDetails(eventId: number) {
     const eventData = this.muditaApiServce.getEventDetails(eventId);
 
     this.myEvent = new EventObject();
 
-    this.myEvent.id = eventData.eventId;
+    this.myEvent.id = eventData.id;
     this.myEvent.title = eventData.title;
     this.myEvent.fences = new Array<FenceObject>();
 
-    eventData.fence.forEach(fence => {
+    eventData.fences.forEach(fence => {
       const newFence = new FenceObject();
-      const newFenceLocation = new LocationObject();
-      newFenceLocation.latitude = fence.latitude;
-      newFenceLocation.longitude = fence.longitude;
-      newFence.id = fence.fenceId;
-      newFence.location = newFenceLocation;
+      newFence.id = fence.id;
+      newFence.location = fence.location;
       newFence.text = fence.text;
       newFence.imageUrl = fence.imageUrl;
       newFence.tag = fence.tag;

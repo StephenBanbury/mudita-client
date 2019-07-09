@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { EventObject } from '../../shared/event-object.model'
 import { MuditaApiService } from '../../services/mudita-api.service';
-import { NavController } from '@ionic/angular';
+//import { NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
 
 @Component({
@@ -25,6 +25,14 @@ export class HomePage implements OnInit {
   ngOnInit() {
     this.eventIsSelected = false;
     this.events = this.muditaApiServce.getEventBasicDetails();
+    console.log(this.events);
+    
+    // this.muditaApiServce.getEvents().subscribe( 
+    //   event => { 
+    //     console.log('event from Api', event);
+    //   }
+    // );
+
   }
 
   onSelectEvent(event: EventObject) {
@@ -34,7 +42,7 @@ export class HomePage implements OnInit {
   getEventDataFromApi(eventId: number) {
     const eventData = this.muditaApiServce.getEventDetails(eventId);
 
-    this.myEvent.id = eventData.eventId;
+    this.myEvent.id = eventData.id;
     this.myEvent.title = eventData.title;
   }
 }
