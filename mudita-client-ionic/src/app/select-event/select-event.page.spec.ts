@@ -1,22 +1,21 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { FencePage } from './fence.page';
+import { SelectEventPage } from './select-event.page';
 
-describe('Fence', () => {
-  let component: FencePage;
-  let fixture: ComponentFixture<FencePage>;
+describe('SelectEventPage', () => {
+  let component: SelectEventPage;
+  let fixture: ComponentFixture<SelectEventPage>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ FencePage ],
+      declarations: [SelectEventPage],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
-    })
-    .compileComponents();
+    }).compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(FencePage);
+    fixture = TestBed.createComponent(SelectEventPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { MockEventApi as MockEventApi } from '../shared/mock-event-api';
 import { MockFenceApi as MockFenceApi } from '../shared/mock-fence-api';
 import { FenceObject } from 'src/shared/fence-object-model';
-import { Fence } from 'src/app/fence/fence.page';
+import { FencePage } from 'src/app/fence/fence.page';
 import { LocationObject } from 'src/shared/location-object.model';
 
 @Injectable({

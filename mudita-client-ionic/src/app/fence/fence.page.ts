@@ -8,7 +8,7 @@ import { IUnsplashImage } from '../../shared/unsplash-image';
   templateUrl: "fence.page.html",
   styleUrls: ["fence.page.scss"]
 })
-export class Fence implements OnInit {
+export class FencePage implements OnInit {
 
   eventId:number;
   fenceId:number;
