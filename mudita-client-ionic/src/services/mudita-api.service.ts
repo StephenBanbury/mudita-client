@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IUnsplashImage } from '../shared/unsplash-image';
 import { EventObject } from '../shared/event-object.model';
 import { IEvent } from '../shared/event-interface.model'
@@ -23,10 +23,17 @@ export class MuditaApiService {
   textApiKey = "";
   soundApiUrl = "";
   soundApiKey = "";
+  
+  // GetHttpHeaders() : HttpHeaders{
+  //   const headers = new HttpHeaders()
+  //   .append('content-type', 'application/json')
+  //   .append('Access-Control-Allow-Origin', '*');
+  //   return headers;
+  // }
 
   constructor(private http: HttpClient) { }
 
-  getEventBasicDetails(): Array<EventObject> {
+  getMockEventsBasicDetails(): Array<EventObject> {
     let events = new Array<EventObject>();
 
     MockEventApi.data.forEach(event => {
@@ -46,6 +53,18 @@ export class MuditaApiService {
     // })
 
     return events;
+  }
+
+  // getEventsBasicDetails(): Observable<HttpResponse<IEvent>> {
+  //   //return this.http.get<IEvent>(this.eventsApiUrl);       
+  //   return this.http.get<IEvent>(this.eventsApiUrl, { observe: 'response' });       
+  //   //return this.http.get<IEvent>(this.eventsApiUrl, { headers: this.GetHttpHeaders(), observe: 'response' });       
+  // }
+
+  getEventsBasicDetails(): Observable<IEvent> {
+    return this.http.get<IEvent>(this.eventsApiUrl);       
+    //return this.http.get<IEvent>(this.eventsApiUrl, { observe: 'response' });       
+    //return this.http.get<IEvent>(this.eventsApiUrl, { headers: this.GetHttpHeaders(), observe: 'response' });       
   }
 
   getEvents(): Observable<IEvent>  {
