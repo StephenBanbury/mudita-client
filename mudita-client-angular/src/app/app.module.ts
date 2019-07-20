@@ -4,6 +4,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { AgmCoreModule } from '@agm/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { HomeComponent } from '././home/home.component';
+import { ExploreComponent } from '././explore/explore.component';
+import { FenceComponent } from '././fence/fence.component';
 import { AngularFirestoreModule } from '@angular/fire/firestore'
 import { AngularFireModule } from '@angular/fire';
 //import { AngularFireAuthModule } from '@angular/fire/auth';
@@ -17,7 +20,10 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent,
+    ExploreComponent,
+    FenceComponent
   ],
   imports: [
     BrowserModule,
