@@ -1,0 +1,54 @@
+  <div>
+    <div>
+      <div>
+        <div text-center>
+        <h3 *ngIf="myEvent">
+          Event: {{ myEvent.title }}
+        </h3>
+      </div>
+      </div>
+    </div>
+    <div style="text-align: center">
+      lat: {{ myLocation.latitude }} long: {{ myLocation.longitude }}
+    </div>
+
+    <div>
+      <agm-map #map
+        (mapClick)="onCreateNewFence($event)"
+        [style.height.px]="height"
+        [latitude]="myLocation.latitude"
+        [longitude]="myLocation.longitude"
+        [zoom]="zoom">
+        <agm-marker
+          [latitude]="myLocation.latitude"
+          [longitude]="myLocation.longitude"
+          [label]="myMarkerLabelOptions"
+          [iconUrl]="myMarkerIconOptions">
+        </agm-marker>
+        <div *ngFor="let fence of myFences">
+          <agm-marker *ngIf="fence.show"
+            [latitude]="fence.location.latitude"
+            [longitude]="fence.location.longitude">
+          </agm-marker>
+        </div>
+      </agm-map>
+    </div>
+  </div>
+
+  <div>
+      <div *ngIf="myEvent">
+        <div>
+          <h2>{{ statusMessage }}</h2>
+        </div>
+        <div>
+          <button *ngIf="myFences.length > 0 && myFences[0].selected" (click)="onSelectFence()">
+            NAV AWAY!
+          </button>
+        </div>
+        <!-- <div *ngFor="let fence of myEvent.fences">
+          {{ fence.tag }} ({{ fence.distance }} m) {{ fence.show }}
+          <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
+        </div> -->
+        <br>
+      </div>
+  </div>

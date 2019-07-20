@@ -5,10 +5,10 @@ import { IUnsplashImage } from '../../shared/unsplash-image';
 
 @Component({
   selector: "app-fence",
-  templateUrl: "fence.page.html",
-  styleUrls: ["fence.page.scss"]
+  templateUrl: "./fence.component.html",
+  styleUrls: ["./fence.component.css"]
 })
-export class FencePage implements OnInit {
+export class FenceComponent implements OnInit {
 
   eventId:number;
   fenceId:number;
@@ -38,7 +38,7 @@ export class FencePage implements OnInit {
 
     })
   }
-  
+
   private getImage() {
     this.muditaApiServce.getImage().subscribe(
       photo => this.imageJsons.push(photo[0]) //.urls.raw + '&w=1500&dpi=2') // width + dpi

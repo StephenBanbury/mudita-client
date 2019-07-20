@@ -1,0 +1,18 @@
+<div>
+  <div>
+    <h1>Fence</h1>
+  </div>
+</div>
+
+<div>
+  <div class="row">
+    <ul *ngFor="let imageJson of imageJsons">
+      <li>
+        <h2><a target="_blank" rel="noopener"
+            href='{{ imageJson.urls.raw + "&w=1500&dpi=2" }}'>{{ imageJson.alt_description == null ? 'untitled' : imageJson.alt_description }}</a>
+        </h2>
+      </li>
+    </ul>
+  </div>
+
+</div>

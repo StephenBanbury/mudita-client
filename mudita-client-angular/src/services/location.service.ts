@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { LocationObject } from './location-object.model';
+import { LocationObject } from '../shared/location-object.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +11,7 @@ export class LocationService {
 
   constructor() { }
 
-  watchLocation(): Observable<any> {
+  watchMyLocation(): Observable<any> {
     return Observable.create(observer => {
       if (navigator.geolocation) {
         this.watchId = navigator.geolocation.watchPosition(position => {
@@ -34,6 +33,9 @@ export class LocationService {
   }
 
   getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+    // console.log('lat1,lon1',lat1, lon1);
+    // console.log('lat2,lon2',lat2, lon2);
+
     let R = 6371; // Radius of the earth in km
     let dLat = this.deg2rad(lat2-lat1);  // deg2rad below
     let dLon = this.deg2rad(lon2-lon1);
