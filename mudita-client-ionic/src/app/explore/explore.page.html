@@ -16,6 +16,9 @@
       </ion-label>
       </ion-item>
     </ion-card>  
+    <ion-card-subtitle style="text-align: center">
+      lat: {{ myLocation.latitude }} long: {{ myLocation.longitude }}
+    </ion-card-subtitle>
 
     <div>
       <agm-map #map      
@@ -31,7 +34,7 @@
           [iconUrl]="myMarkerIconOptions">
         </agm-marker>
         <div *ngFor="let fence of myEvent.fences">
-          <agm-marker *ngIf="fence.show == true" 
+          <agm-marker *ngIf="fence.show" 
             [latitude]="fence.location.latitude"
             [longitude]="fence.location.longitude">
           </agm-marker>
@@ -57,7 +60,7 @@
           <h2>{{ statusMessage }}</h2>
         </div>
         <div>
-          <ion-button *ngIf="myEvent.fences[0].selected == true" (click)="onSelectFence()">
+          <ion-button *ngIf="myEvent.fences[0].selected" (click)="onSelectFence()">
             NAV AWAY!
           </ion-button>
         </div>

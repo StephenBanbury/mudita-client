@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Observable } from 'rxjs';
+
 import { LocationService } from '../../services/location.service'
 import { EventObject } from '../../shared/event-object.model'
 import { FenceObject } from '../../shared/fence-object-model';
@@ -10,7 +11,7 @@ import { MuditaApiService } from '../../services/mudita-api.service';
 import { IUnsplashImage } from '../../shared/unsplash-image';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { ToastController } from '@ionic/angular';
+//import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: "app-explore",
@@ -34,12 +35,12 @@ export class ExplorePage {
   imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
 
   constructor(
+    public platform: Platform,
+    //public toastController: ToastController,
     private router: Router,
     private route: ActivatedRoute,
-    public platform: Platform,
     private locationService: LocationService,
     private muditaApiServce: MuditaApiService,
-    public toastController: ToastController
   ) {
     console.log('constructor');
     this.route.params.subscribe();
@@ -72,7 +73,7 @@ export class ExplorePage {
       this.eventId = params["eventId"];
       if (this.eventId) {
         console.log('subscribed to params. eventId:', this.eventId);
-        this.getEventDataFromApi(this.eventId);
+        this.getEventDetails(this.eventId);
         if(this.trackingMyLocation) {
           this.checkForLocalEventFences();
         }
@@ -99,23 +100,20 @@ export class ExplorePage {
     });
     this.trackingMyLocation = true;
   }
-
-  getEventDataFromApi(eventId: number) {
+  
+  getEventDetails(eventId: number) {
     const eventData = this.muditaApiServce.getEventDetails(eventId);
 
     this.myEvent = new EventObject();
 
-    this.myEvent.id = eventData.eventId;
+    this.myEvent.id = eventData.id;
     this.myEvent.title = eventData.title;
     this.myEvent.fences = new Array<FenceObject>();
 
-    eventData.fence.forEach(fence => {
+    eventData.fences.forEach(fence => {
       const newFence = new FenceObject();
-      const newFenceLocation = new LocationObject();
-      newFenceLocation.latitude = fence.latitude;
-      newFenceLocation.longitude = fence.longitude;
-      newFence.id = fence.fenceId;
-      newFence.location = newFenceLocation;
+      newFence.id = fence.id;
+      newFence.location = fence.location;
       newFence.text = fence.text;
       newFence.imageUrl = fence.imageUrl;
       newFence.tag = fence.tag;
@@ -145,7 +143,7 @@ export class ExplorePage {
     newFence.location = newFenceLocation;
     newFence.tag = "New fence " + (this.myEvent.fences.length + 1).toString();
     newFence.selected = false;
-    newFence.show = false;
+    newFence.show = true;
 
     console.log('newFence',newFence);
 
@@ -176,7 +174,7 @@ export class ExplorePage {
           fence.location.latitude,
           fence.location.longitude
         ));
-      //fence.show = fence.distance <= this.reallyCloseMetres;
+      fence.show = true; //fence.distance <= this.reallyCloseMetres;
       fence.selected = fence.distance <= this.reallyCloseMetres;
     }
 
@@ -185,7 +183,7 @@ export class ExplorePage {
     );
 
     if (this.myEvent.fences[0].distance <= this.reallyCloseMetres) {
-      this.myEvent.fences[0].show = true;
+      //this.myEvent.fences[0].show = true;
       this.statusMessage = "There is a zone REALLY close!"; // Here's a random image from Unsplash's API for you..';
       this.myMarkerIconOptions = {
         url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
@@ -211,12 +209,5 @@ export class ExplorePage {
 
   private stopTrackMyLocation() {
     this.locationService.stopWatchLocation();
-  }
-
-  private getImage() {
-    this.muditaApiServce.getImage().subscribe(
-      photo => this.imageJsons.push(photo[0]) //.urls.raw + '&w=1500&dpi=2') // width + dpi
-      //console.log(photo[0].urls.raw + '&w=1500&dpi=2')
-    );
   }
 }

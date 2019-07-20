@@ -1,0 +1,10 @@
+<div class="container">
+    <div>
+      <div>
+        <h4>Please select your event</h4>
+      </div>
+      <ul *ngFor="let event of events">
+        <li (click)="onSelectEvent(event)">{{ event.title }}</li>
+      </ul>
+    </div>
+</div>

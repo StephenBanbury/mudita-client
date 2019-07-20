@@ -3,57 +3,13 @@
     {{ title }}
   </h1>
 </div>
-
-<div class="container">
-  <div class="row">
-    <div class="col" *ngFor="let event of events" (click)="onSelectEvent(event)">
-      <b>{{ event.title }}</b>
-    </div>
-    <div class="col">
-    <h3 *ngIf="eventSelected" style="color: red">Selected Event: {{ myEvent.title }}</h3>
-  </div>
-  </div>
-  <div class="row>">
-    <div class="col">
-    <h2>{{ statusMessage }}</h2>
-  </div>
-    <div class="col" *ngIf="eventSelected">
-      <div *ngFor="let fence of myEvent.fences">
-        {{ fence.tag }} ({{ fence.distance }} m) <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
-      </div>
-    </div>
-  </div>
+<div>
+  <h3>{{ myEvent.title }}</h3>
 </div>
-
-<br><br>
-<div class="row">
-  <agm-map #map
-    [latitude]="myLocation.latitude"
-    [longitude]="myLocation.longitude"
-    [zoom]="zoom">
-    <agm-marker
-      [latitude]="myLocation.latitude"
-      [longitude]="myLocation.longitude"
-      [label]="myMarkerLabelOptions"
-      [iconUrl]="myMarkerIconOptions">
-    </agm-marker>
-    <div *ngFor="let fence of myEvent.fences">
-      <agm-marker *ngIf="fence.selected==true" [latitude]="fence.location.latitude" [longitude]="fence.location.longitude">
-      </agm-marker>
-    </div>
-  </agm-map>
+<div>
+  <button (click)="onToggleEventList()">Show all events</button>
 </div>
-
-<div class="row">
-  <ul *ngFor="let imageJson of imageJsons">
-    <li>
-      <h2><a target="_blank" rel="noopener"
-          href='{{ imageJson.urls.raw + "&w=1500&dpi=2" }}'>{{ imageJson.alt_description == null ? 'untitled' : imageJson.alt_description }}</a>
-      </h2>
-    </li>
-  </ul>
-</div>
-
-
+<app-home *ngIf="showEventList" (eventSelected)="onEventSelected($event)"></app-home>
+<app-explore *ngIf="eventIsSelected" [myEvent]="myEvent"></app-explore>
 <router-outlet></router-outlet>
 
