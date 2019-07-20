@@ -10,8 +10,6 @@ import { MuditaApiService } from '../../services/mudita-api.service';
 import { IUnsplashImage } from '../../shared/unsplash-image';
 import { ActivatedRoute, Router } from '@angular/router';
 
-//import { ToastController } from '@ionic/angular';
-
 @Component({
   selector: "app-explore",
   templateUrl: "explore.component.html",
@@ -35,7 +33,6 @@ export class ExploreComponent {
   //imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
 
   constructor(
-    //public toastController: ToastController,
     //private router: Router,
     //private route: ActivatedRoute,
     private locationService: LocationService,
@@ -74,8 +71,8 @@ export class ExploreComponent {
     this.trackMyLocation();
   }
 
+  //TODO lose this when we have proper locations
   addMockLocations() {
-    //TODO lose this when we have proper locations
     const locations = this.muditaApiServce.getMockLocations();
     let i = 0;
     this.myFences.forEach(fence => {
@@ -83,21 +80,6 @@ export class ExploreComponent {
     })
     i++;
   }
-
-  // ngOnInit() {
-  //   console.log('onInit');
-  //   this.route.queryParams.subscribe(params => {
-  //     this.eventId = params["eventId"];
-  //     if (this.eventId) {
-  //       console.log('subscribed to params. eventId:', this.eventId);
-  //       this.getEventDetails(this.eventId);
-  //       if(this.trackingMyLocation) {
-  //         this.checkForLocalEventFences();
-  //       }
-  //     }
-  //   });
-  //   this.trackMyLocation();
-  // }
 
   ngOnDestroy() {
     this.stopTrackMyLocation();
@@ -124,58 +106,34 @@ export class ExploreComponent {
           this.checkForLocalEventFences();
         }
       });
-
   }
 
-  // getEventDetails(eventId: number, includeFences: boolean) {
-  //   const eventData = this.muditaApiServce.getEventDetails(eventId, includeFences);
-
-  //   this.myEvent = new EventObject();
-
-  //   this.myEvent.id = eventData.id;
-  //   this.myEvent.title = eventData.title;
-  //   this.myEvent.fences = new Array<FenceObject>();
-
-  //   eventData.fences.forEach(fence => {
-  //     const newFence = new FenceObject();
-  //     newFence.id = fence.id;
-  //     newFence.location = fence.location;
-  //     newFence.text = fence.text;
-  //     newFence.imageUrl = fence.imageUrl;
-  //     newFence.tag = fence.tag;
-  //     newFence.selected = false;
-  //     newFence.show = true;
-  //     this.myEvent.fences.push(newFence);
-  //   });
-  //   console.log('getEventFromApi. myEvent:', this.myEvent);
-  // }
-
-  // nextFenceId() {
-  //   return this.myEvent.fences.length + 9999;
-  // }
+  nextFenceId() {
+    return this.myFences.length + 9999;
+  }
 
   onCreateNewFence(event) {
-  //   if (!this.myEvent) {
-  //     return;
-  //   }
-  //   const newFence = new FenceObject();
-  //   const newFenceLocation = new LocationObject();
+    if (!this.myEvent) {
+      return;
+    }
+    const newFence = new FenceObject();
+    const newFenceLocation = new LocationObject();
 
-  //   newFence.id = this.nextFenceId();
+    newFence.id = this.nextFenceId();
 
-  //   newFenceLocation.latitude = event.coords.lat;
-  //   newFenceLocation.longitude = event.coords.lng;
+    newFenceLocation.latitude = event.coords.lat;
+    newFenceLocation.longitude = event.coords.lng;
 
-  //   newFence.location = newFenceLocation;
-  //   newFence.tag = "New fence " + (this.myEvent.fences.length + 1).toString();
-  //   newFence.selected = false;
-  //   newFence.show = true;
+    newFence.location = newFenceLocation;
+    newFence.tag = "New fence " + (this.myFences.length + 1).toString();
+    newFence.selected = false;
+    newFence.show = true;
 
-  //   console.log('newFence',newFence);
+    console.log('newFence',newFence);
 
-  //   this.myEvent.fences.push(newFence);
+    this.myFences.push(newFence);
 
-  //   this.checkForLocalEventFences();
+    this.checkForLocalEventFences();
   }
 
   onSelectFence() {

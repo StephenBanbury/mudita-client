@@ -5,8 +5,8 @@ export class FenceObject {
   public tag: string;
   public location: LocationObject;
   public distance: number;
-  public text: string;
-  public imageUrl: string;
+  // public text: string;
+  // public imageUrl: string;
   public selected: boolean;
   public show: boolean;
 }

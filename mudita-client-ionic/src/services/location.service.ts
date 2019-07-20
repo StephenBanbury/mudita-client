@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
+import { DeviceOrientation } from '@ionic-native/device-orientation/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -9,21 +10,15 @@ export class LocationService {
 
   watchId: number;
 
-  constructor(private geolocation: Geolocation) { }
+  constructor(private geolocation: Geolocation, private deviceOrientation: DeviceOrientation) { }
 
   watchMyLocation(): Observable<Geoposition> {
-
     let options = {
       enableHighAccuracy: true,
       timeout: 8000,
       maximumAge: 7000,
     };
-
     let watch = this.geolocation.watchPosition(options);
-    watch.subscribe(data => {
-      console.log('watchLocationObservable', data);
-    });
-
     return watch;
   }
 
@@ -31,10 +26,12 @@ export class LocationService {
     navigator.geolocation.clearWatch(this.watchId);
   }
 
-  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-    // console.log('lat1,lon1',lat1, lon1);
-    // console.log('lat2,lon2',lat2, lon2);
+  trackMyHeading() {
+    let watch = this.deviceOrientation.watchHeading()
+    return watch;
+  }
 
+  getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     let R = 6371; // Radius of the earth in km
     let dLat = this.deg2rad(lat2-lat1);  // deg2rad below
     let dLon = this.deg2rad(lon2-lon1);

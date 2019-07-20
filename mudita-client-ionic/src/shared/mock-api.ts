@@ -1,3 +1,34 @@
+export const MockEventApi =
+{
+  "data": [
+      {
+          "id": 2,
+          "title": "Spy Game",
+          "description": "balaha"
+      },
+      {
+          "id": 3,
+          "title": "Dude",
+          "description": "This is an event!"
+      },
+      {
+          "id": 5,
+          "title": "Stamp",
+          "description": "What a wonderful piece of software."
+      },
+      {
+          "id": 6,
+          "title": "Arduino PCB fair",
+          "description": "really good stuff for hobbyist, come joint"
+      },
+      {
+          "id": 7,
+          "title": "ETC",
+          "description": "Product launch"
+      }
+  ]
+}
+
 export const MockFenceApi =
 {
     "data": [
@@ -99,3 +130,33 @@ export const MockFenceApi =
     ]
 }
 
+export const MockLocationApi = {
+  "location":
+    [
+      {
+        "accuracy": 0,
+        "latitude": 51.47131976320642,
+        "longitude": -3.1857964233481653
+      },
+      {
+        "accuracy": 0,
+        "latitude": 51.471600450847056,
+        "longitude": -3.185302896889425
+      },
+      {
+        "accuracy": 0,
+        "latitude": 51.47159376782806,
+        "longitude": -3.1853887275779016
+      },
+      {
+        "accuracy": 0,
+        "latitude": 51.47178710361754,
+        "longitude": -3.1854950221519402
+      },
+      {
+        "accuracy": 0,
+        "latitude": 51.47194749512348,
+        "longitude": -3.185548666332238
+      }
+    ]
+}

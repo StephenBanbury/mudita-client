@@ -1,27 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
-import { Observable } from 'rxjs';
-
+import { Observable, Subscription } from 'rxjs';
 import { LocationService } from '../../services/location.service'
 import { EventObject } from '../../shared/event-object.model'
 import { FenceObject } from '../../shared/fence-object-model';
 import { LocationObject } from '../../shared/location-object.model'
 import { MuditaApiService } from '../../services/mudita-api.service';
-
-import { IUnsplashImage } from '../../shared/unsplash-image';
 import { ActivatedRoute, Router } from '@angular/router';
-
-//import { ToastController } from '@ionic/angular';
+//import { IUnsplashImage } from '../../shared/unsplash-image';
 
 @Component({
   selector: "app-explore",
   templateUrl: "explore.page.html",
   styleUrls: ["explore.page.scss"]
 })
-export class ExplorePage {
+export class ExplorePage implements OnInit {
+  @Input() myEvent: EventObject;
+  myFences: Array<FenceObject>;
   title: string = "Mudita Events";
   height = 0;
-  myEvent: EventObject;
   myLocation: LocationObject;
   myMarkerLabelOptions: any;
   myMarkerIconOptions: any;
@@ -30,26 +27,28 @@ export class ExplorePage {
   reallyCloseMetres: number;
   statusMessage: string;
   zoom: number;
+  mapType: string;
   locationObservable: Observable<LocationObject>;
   trackingMyLocation: boolean;
-  imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
+  headingSubscription: Subscription;
+  myHeading: any;
 
   constructor(
     public platform: Platform,
-    //public toastController: ToastController,
     private router: Router,
     private route: ActivatedRoute,
     private locationService: LocationService,
-    private muditaApiServce: MuditaApiService,
+    private muditaApiServce: MuditaApiService
   ) {
-    console.log('constructor');
     this.route.params.subscribe();
 
     this.height = platform.height() - 56;
+    this.myFences = new Array<FenceObject>();
     this.myLocation = new LocationObject();
     this.closeMetres = 10;
     this.reallyCloseMetres = 5;
     this.zoom = 18;
+    this.mapType = "roadmap";
 
     this.myMarkerLabelOptions = {
       color: "#000",
@@ -68,64 +67,66 @@ export class ExplorePage {
   }
 
   ngOnInit() {
-    console.log('onInit');
     this.route.queryParams.subscribe(params => {
-      this.eventId = params["eventId"];
-      if (this.eventId) {
-        console.log('subscribed to params. eventId:', this.eventId);
-        this.getEventDetails(this.eventId);
+      const eventId = params["eventId"];
+      if (eventId) {
+        this.getEventFences(eventId);
         if(this.trackingMyLocation) {
           this.checkForLocalEventFences();
         }
       }
     });
+
     this.trackMyLocation();
+    this.trackMyHeading(); 
   }
 
   ngOnDestroy() {
-    this.stopTrackMyLocation();
+    this.stopTrackMyHeading();
+    this.stopTrackMyLocation();    
   }
 
-  trackMyLocation() {
-    console.log('trackMyLocation');
-    this.locationService.watchMyLocation().subscribe(
-      newLocation => {
-        console.log('subscribed to location service. newLocation:', newLocation);
-        this.myLocation.latitude = newLocation.coords.latitude;
-        this.myLocation.longitude = newLocation.coords.longitude;
-        this.myLocation.accuracy = newLocation.coords.accuracy;
-        if (this.myEvent) {
+  //TODO lose this when we have proper locations
+  addMockLocations() {
+    const locations = this.muditaApiServce.getMockLocations();
+    let i = 0;
+    this.myFences.forEach(fence => {
+      fence.location = locations[i]
+      i++;
+    })
+  }
+
+  getEventFences(eventId: number) {
+    this.myEvent = new EventObject();
+    this.myFences = new Array<FenceObject>();
+
+    this.muditaApiServce.getEventFences(eventId)
+      .subscribe(eventFences => {
+        this.myEvent.id = eventFences.event.id;
+        this.myEvent.title = eventFences.event.title;
+        this.myEvent.description = eventFences.event.description;
+        eventFences.fences.forEach(fence => {
+          this.myFences.push({
+            id: fence.id,
+            tag: fence.tag,
+            location: new LocationObject(), //TODO
+            distance: 0,
+            selected: false,
+            show: true
+          })
+        })
+
+        //TODO lose this when we have proper locations
+        this.addMockLocations();
+
+        if (this.trackingMyLocation) {
           this.checkForLocalEventFences();
         }
-    });
-    this.trackingMyLocation = true;
-  }
-  
-  getEventDetails(eventId: number) {
-    const eventData = this.muditaApiServce.getEventDetails(eventId);
-
-    this.myEvent = new EventObject();
-
-    this.myEvent.id = eventData.id;
-    this.myEvent.title = eventData.title;
-    this.myEvent.fences = new Array<FenceObject>();
-
-    eventData.fences.forEach(fence => {
-      const newFence = new FenceObject();
-      newFence.id = fence.id;
-      newFence.location = fence.location;
-      newFence.text = fence.text;
-      newFence.imageUrl = fence.imageUrl;
-      newFence.tag = fence.tag;
-      newFence.selected = false;
-      newFence.show = true;
-      this.myEvent.fences.push(newFence);
-    });
-    console.log('getEventFromApi. myEvent:', this.myEvent);
+      });
   }
 
   nextFenceId() {
-    return this.myEvent.fences.length + 9999;
+    return this.myFences.length + 9999;
   }
 
   onCreateNewFence(event) {
@@ -134,39 +135,33 @@ export class ExplorePage {
     }
     const newFence = new FenceObject();
     const newFenceLocation = new LocationObject();
-    
+
     newFence.id = this.nextFenceId();
 
     newFenceLocation.latitude = event.coords.lat;
     newFenceLocation.longitude = event.coords.lng;
 
     newFence.location = newFenceLocation;
-    newFence.tag = "New fence " + (this.myEvent.fences.length + 1).toString();
+    newFence.tag = "New fence " + (this.myFences.length + 1).toString();
     newFence.selected = false;
     newFence.show = true;
-
-    console.log('newFence',newFence);
-
-    this.myEvent.fences.push(newFence);
+    this.myFences.push(newFence);
 
     this.checkForLocalEventFences();
   }
 
   onSelectFence() {
-    //console.log('onSelectFence', `eventId: ${this.eventId}, fenceId: ${this.myEvent.fences[0].id}`);
-    this.router.navigate(['/tabs/fence'], { queryParams: { eventId: this.eventId, fenceId: this.myEvent.fences[0].id } });
+     this.router.navigate(['/tabs/fence'], { queryParams: { eventId: this.eventId, fenceId: this.myFences[0].id } });
   }
 
   private checkForLocalEventFences() {
-    console.log("checkForLocalEventFences");
-
-    if (this.myEvent.fences.length == 0) {
+    if (this.myFences.length == 0) {
       this.statusMessage = "This event has no fences!";
       return false;
     }
 
-    for(let i: number = 0; i <= this.myEvent.fences.length -1; i++){
-      let fence = this.myEvent.fences[i]; 
+    for(let i: number = 0; i <= this.myFences.length -1; i++){
+      let fence = this.myFences[i];
       fence.distance = Math.round(
         this.locationService.getDistanceFromLatLonInKm(
           this.myLocation.latitude,
@@ -174,17 +169,16 @@ export class ExplorePage {
           fence.location.latitude,
           fence.location.longitude
         ));
-      fence.show = true; //fence.distance <= this.reallyCloseMetres;
+      fence.show = true;
       fence.selected = fence.distance <= this.reallyCloseMetres;
     }
 
-    this.myEvent.fences.sort((a, b) =>
+    this.myFences.sort((a, b) =>
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
-    if (this.myEvent.fences[0].distance <= this.reallyCloseMetres) {
-      //this.myEvent.fences[0].show = true;
-      this.statusMessage = "There is a zone REALLY close!"; // Here's a random image from Unsplash's API for you..';
+    if (this.myFences[0].distance <= this.reallyCloseMetres) {
+      this.statusMessage = "There is a zone REALLY close!"; 
       this.myMarkerIconOptions = {
         url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
         scaledSize: {
@@ -192,9 +186,8 @@ export class ExplorePage {
           height: 40
         }
       };
-    } else if (this.myEvent.fences[0].distance <= this.closeMetres) {
+    } else if (this.myFences[0].distance <= this.closeMetres) {
       this.statusMessage = "There is a zone close by!"
-      //this.imageJsons = new Array<IUnsplashImage>();
     } else {
       this.statusMessage = "No events nearby";
       this.myMarkerIconOptions = {
@@ -207,7 +200,32 @@ export class ExplorePage {
     }
   }
 
+  private trackMyLocation() {
+    this.locationService.watchMyLocation().subscribe(
+      newLocation => {
+        this.myLocation.latitude = newLocation.coords.latitude;
+        this.myLocation.longitude = newLocation.coords.longitude;
+        this.myLocation.accuracy = newLocation.coords.accuracy;
+        if (this.myEvent) {
+          this.checkForLocalEventFences();
+        }
+    });
+    this.trackingMyLocation = true;
+  }
+
   private stopTrackMyLocation() {
     this.locationService.stopWatchLocation();
   }
+
+  private trackMyHeading() {
+    this.headingSubscription = this.locationService.trackMyHeading()
+      .subscribe(data => {
+        this.myHeading = data.magneticHeading;
+      });
+  }
+
+  private stopTrackMyHeading() {
+    this.headingSubscription.unsubscribe();
+  }
+
 }

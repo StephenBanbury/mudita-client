@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { DeviceOrientation } from '@ionic-native/device-orientation/ngx';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    Geolocation
+    Geolocation,
+    DeviceOrientation
   ],
   bootstrap: [
     AppComponent

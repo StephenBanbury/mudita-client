@@ -17,7 +17,8 @@
       </ion-item>
     </ion-card>  
     <ion-card-subtitle style="text-align: center">
-      lat: {{ myLocation.latitude }} long: {{ myLocation.longitude }}
+      latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br>
+      heading: {{ myHeading }}
     </ion-card-subtitle>
 
     <div>
@@ -26,19 +27,24 @@
         [style.height.px]="height"
         [latitude]="myLocation.latitude" 
         [longitude]="myLocation.longitude" 
-        [zoom]="zoom">
+        [zoom]="zoom"
+        [mapTypeId]="mapType">
         <agm-marker 
           [latitude]="myLocation.latitude" 
           [longitude]="myLocation.longitude" 
           [label]="myMarkerLabelOptions"
           [iconUrl]="myMarkerIconOptions">
         </agm-marker>
-        <div *ngFor="let fence of myEvent.fences">
+        <div *ngFor="let fence of myFences">
           <agm-marker *ngIf="fence.show" 
             [latitude]="fence.location.latitude"
             [longitude]="fence.location.longitude">
-          </agm-marker>
-        </div>
+          </agm-marker>       
+          <!-- <agm-direction 
+            [origin]="{ lat: myLocation.latitude, lng: myLocation.longitude }" 
+            [destination]="{ lat: fence.location.latitude, lng: fence.location.longitude }">
+          </agm-direction> -->
+        </div> 
       </agm-map>
     </div>
 <!--   
@@ -60,7 +66,7 @@
           <h2>{{ statusMessage }}</h2>
         </div>
         <div>
-          <ion-button *ngIf="myEvent.fences[0].selected" (click)="onSelectFence()">
+          <ion-button *ngIf="myFences.length > 0 && myFences[0].selected" (click)="onSelectFence()">
             NAV AWAY!
           </ion-button>
         </div>

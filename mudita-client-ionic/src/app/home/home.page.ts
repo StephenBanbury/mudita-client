@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { EventObject } from '../../shared/event-object.model'
 import { MuditaApiService } from '../../services/mudita-api.service';
-//import { NavController } from '@ionic/angular';
-import { Router } from '@angular/router';
-import { IEvent } from 'src/shared/event-interface.model';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: "app-home",
@@ -11,31 +9,31 @@ import { IEvent } from 'src/shared/event-interface.model';
   styleUrls: ["home.page.scss"]
 })
 export class HomePage implements OnInit {  
-  //headers: string[];
-  event: IEvent;
-  myEvent: EventObject;
   events: Array<EventObject>;
   eventIsSelected: boolean;
 
+  @Output() eventSelected = new EventEmitter<EventObject>();
+
   constructor(
     private muditaApiServce: MuditaApiService, 
-    private router: Router
+    private router: Router,
   ) {
-    this.myEvent = new EventObject();
     this.events = new Array<EventObject>();
   }
 
   ngOnInit() {
-    this.eventIsSelected = false;
-    this.muditaApiServce.getEventsBasicDetails().subscribe(
-      events => {
-        //console.log('event from Api', events.data);
+    console.log('home - onInit');
+    this.getEvents();
+  }
+
+  getEvents() {
+    this.muditaApiServce.getEvents()
+    .subscribe(events => {
         events.data.forEach(e => {
           this.events.push({
             id: e.id,
             title: e.title,
-            description: e.description,
-            fences: e.fences
+            description: e.description
           });
         });
       }
@@ -43,13 +41,13 @@ export class HomePage implements OnInit {
   }
 
   onSelectEvent(event: EventObject) {
-    this.router.navigate(['/tabs/explore'], { queryParams: { eventId: event.id } });
+    // this.eventSelected.emit({
+    //   id: event.id,
+    //   title: event.title,
+    //   description: event.description
+    // });
+
+    this.router.navigate(['/tabs/explore/'], { queryParams: { eventId: event.id } });
   }
 
-  getEventDataFromApi(eventId: number) {
-    const eventData = this.muditaApiServce.getEventDetails(eventId);
-
-    this.myEvent.id = eventData.id;
-    this.myEvent.title = eventData.title;
-  }
 }
