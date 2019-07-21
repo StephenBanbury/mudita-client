@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ExplorePage } from './explore.page';
 import { AgmCoreModule } from '@agm/core';          
 import { AgmDirectionModule } from 'agm-direction';
+//import { NativeAudio } from '@ionic-native/native-audio';
 
 @NgModule({
   imports: [
@@ -16,7 +17,8 @@ import { AgmDirectionModule } from 'agm-direction';
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCSXgPI_1LG_thKRrq92Mu-rfnnUskP9-w'
     }),
-    AgmDirectionModule  
+    AgmDirectionModule,
+    //NativeAudio
   ],
   declarations: [
     ExplorePage

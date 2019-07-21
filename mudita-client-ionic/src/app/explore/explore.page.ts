@@ -7,6 +7,8 @@ import { FenceObject } from '../../shared/fence-object-model';
 import { LocationObject } from '../../shared/location-object.model'
 import { MuditaApiService } from '../../services/mudita-api.service';
 import { ActivatedRoute, Router } from '@angular/router';
+//import { NativeAudio } from '@ionic-native/native-audio/ngx';
+
 //import { IUnsplashImage } from '../../shared/unsplash-image';
 
 @Component({
@@ -33,12 +35,18 @@ export class ExplorePage implements OnInit {
   headingSubscription: Subscription;
   myHeading: any;
 
+  audioContext: AudioContext;
+  audioElement: HTMLAudioElement;
+  audioSourceNode: MediaElementAudioSourceNode;
+  audioPannerNode: StereoPannerNode;
+
   constructor(
     public platform: Platform,
     private router: Router,
     private route: ActivatedRoute,
     private locationService: LocationService,
     private muditaApiServce: MuditaApiService
+    //private nativeAudio: NativeAudio
   ) {
     this.route.params.subscribe();
 
@@ -64,6 +72,12 @@ export class ExplorePage implements OnInit {
         height: 40
       }
     };
+
+    // this.nativeAudio.preloadComplex('beep1', '../../assets/beep1_stereo.mp3', 1, 2, 0)
+    //   .then(
+    //     () => console.log("nativeAudio preload success"),
+    //     () => console.log("nativeAudio preload error")
+    //   );
   }
 
   ngOnInit() {
@@ -79,11 +93,37 @@ export class ExplorePage implements OnInit {
 
     this.trackMyLocation();
     this.trackMyHeading(); 
+    this.audioInit();
   }
 
   ngOnDestroy() {
     this.stopTrackMyHeading();
     this.stopTrackMyLocation();    
+  }
+
+  audioInit() {    
+    this.audioContext = new AudioContext();
+    this.audioElement = new Audio('../../assets/120BPM_metronome.mp3');
+    this.audioPannerNode = this.audioContext.createStereoPanner()
+    this.audioSourceNode = this.audioContext.createMediaElementSource(this.audioElement);
+
+    this.audioSourceNode.connect(this.audioPannerNode)
+    this.audioPannerNode.connect(this.audioContext.destination)
+    this.audioElement.play()
+  }
+  
+  audioPan(heading: number) {    
+    if(heading > 5 && heading <= 180) {
+      this.audioPannerNode.pan.value = 1;
+    }
+
+    if(heading >= 355 || heading <= 5) {
+      this.audioPannerNode.pan.value = 0
+    }
+
+    if(heading > 180 && heading <355) {
+      this.audioPannerNode.pan.value = -1
+    }
   }
 
   //TODO lose this when we have proper locations
@@ -221,6 +261,9 @@ export class ExplorePage implements OnInit {
     this.headingSubscription = this.locationService.trackMyHeading()
       .subscribe(data => {
         this.myHeading = data.magneticHeading;
+
+        //this.nativeAudio.loop('beep1');//.then(onSuccess, onError);
+        this.audioPan(data.magneticHeading);
       });
   }
 

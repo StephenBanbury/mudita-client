@@ -13,6 +13,8 @@ import { AppComponent } from './app.component';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { DeviceOrientation } from '@ionic-native/device-orientation/ngx';
 
+import { NativeAudio } from '@ionic-native/native-audio/ngx';
+
 @NgModule({
   declarations: [
     AppComponent
@@ -28,7 +30,8 @@ import { DeviceOrientation } from '@ionic-native/device-orientation/ngx';
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Geolocation,
-    DeviceOrientation
+    DeviceOrientation,
+    NativeAudio
   ],
   bootstrap: [
     AppComponent
