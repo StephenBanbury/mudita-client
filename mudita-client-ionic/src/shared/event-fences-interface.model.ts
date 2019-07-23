@@ -7,7 +7,9 @@ export interface IEventFences {
   fences: [
     {
       id: number,
-      tag: string
+      tag: string,
+      latitude: number,
+      longitude: number
     }
   ]
 }

@@ -1,4 +1,5 @@
 import { LocationObject } from './location-object.model';
+import { GeoMarkerIconObject } from './geo-marker-icon-object.model';
 
 export class FenceObject {
   public id: number;
@@ -9,4 +10,5 @@ export class FenceObject {
   // public imageUrl: string;
   public selected: boolean;
   public show: boolean;
+  public geoMarkerIcon: GeoMarkerIconObject;
 }
