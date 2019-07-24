@@ -25,6 +25,7 @@ export class ExplorePage implements OnInit {
   title: string = "Mudita Events";
   height = 0;
   myLocation: LocationObject;
+  showGeoInfo: boolean;
 
   myGeoMarkerLabel: any;
   myGeoMarkerIcon: GeoMarkerIconObject;
@@ -53,12 +54,16 @@ export class ExplorePage implements OnInit {
 
   myHeading: number;
   myBearing: number;
-  myHeadingToFence: number;
+  myBearingTwo: number;
+  relativeBearing: number;
 
   audioContext: AudioContext;
   audioElement: HTMLAudioElement;
   audioSourceNode: MediaElementAudioSourceNode;
   audioPannerNode: StereoPannerNode;
+  audioInterval: number;
+  playLoop: any;
+  isPlayingLoop: boolean;
 
   constructor(
     public platform: Platform,
@@ -72,11 +77,13 @@ export class ExplorePage implements OnInit {
 
     this.height = platform.height() - 56;
     this.myLocalFence = new FenceObject();
+    this.myLocalFence.distance = 99999999;
     this.myLocation = new LocationObject();
     this.closeMetres = 10;
     this.reallyCloseMetres = 5;
     this.zoom = 18;
     this.mapType = "roadmap";
+    this.showGeoInfo = false;
 
     this.myGeoMarkerLabel = {
       color: "#000",
@@ -118,7 +125,8 @@ export class ExplorePage implements OnInit {
       }
     };
 
-    this.myGeoMarkerIcon = this.myGeoMarkerIconRegular
+    this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
+    this.isPlayingLoop = false;
   }
 
   ngOnInit() {
@@ -141,7 +149,8 @@ export class ExplorePage implements OnInit {
     this.unsubscribeEventFences();
     this.unsubscribeHeading();
     this.unsubscribeLocation();
-    this.audioElement.pause()
+    clearTimeout(this.playLoop);
+    this.isPlayingLoop = false;
   }
 
   ngOnDestroy() {
@@ -149,42 +158,62 @@ export class ExplorePage implements OnInit {
     this.unsubscribeEventFences();
     this.unsubscribeHeading();
     this.unsubscribeLocation();
+    clearTimeout(this.playLoop);
+    this.isPlayingLoop = false;
   }
 
   audioInit() {
     this.audioContext = new AudioContext();
-    this.audioElement = new Audio('../../assets/120BPM_metronome.mp3');
+    this.audioElement = new Audio('../../assets/beep1_mono.mp3');
     this.audioPannerNode = this.audioContext.createStereoPanner()
     this.audioSourceNode = this.audioContext.createMediaElementSource(this.audioElement);
-
     this.audioSourceNode.connect(this.audioPannerNode)
     this.audioPannerNode.connect(this.audioContext.destination)
-    this.audioElement.play()
+    //this.audioInterval = 400;
   }
 
+  loopAudio() {
+    let that = this;
+    this.isPlayingLoop = true;
+    this.playLoop = setTimeout(function () {
+      that.audioElement.play();
+      that.loopAudio();      
+    }, this.audioInterval);
+  }
+
+  // loopAudio() {
+  //   this.playLoop = setInterval(() => {
+  //     this.audioElement.play();
+  //   }, this.audioInterval);
+  // }
+
+  // panAudio() {
+  //   if(this.myHeading >= this.myBearing - 10 || this.myHeading <= this.myBearing + 10) {
+  //     this.audioPannerNode.pan.value = 0
+  //   }
+
+  //   if(this.myHeading < this.myBearing - 10 && this.myHeading >= this.myBearing - 180) {
+  //     this.audioPannerNode.pan.value = -1
+  //   }
+
+  //   if(this.myHeading > this.myBearing - 180 && this.myHeading < this.myBearing + 10) {
+  //     this.audioPannerNode.pan.value = 1;
+  //   }
+  // }
+
   panAudio() {
-    if(this.myHeadingToFence >= 350 || this.myHeadingToFence <= 10) {
+    if(this.relativeBearing >= 350 || this.relativeBearing <= 10) {
       this.audioPannerNode.pan.value = 0
     }
 
-    if(this.myHeadingToFence < 350 && this.myHeadingToFence >= 180) {
+    if(this.relativeBearing < 350 && this.relativeBearing >= 180) {
       this.audioPannerNode.pan.value = -1
     }
 
-    if(this.myHeadingToFence > 10 && this.myHeadingToFence < 180) {
+    if(this.relativeBearing > 10 && this.relativeBearing < 180) {
       this.audioPannerNode.pan.value = 1;
     }
   }
-
-  //TODO lose this when we have proper locations
-  // addMockLocations() {
-  //   const locations = this.muditaApiServce.getMockLocations();
-  //   let i = 0;
-  //   this.myFences.forEach(fence => {
-  //     fence.location = locations[i]
-  //     i++;
-  //   })
-  // }
 
   getEventFences(eventId: number) {
     this.myEvent = new EventObject();
@@ -225,8 +254,6 @@ export class ExplorePage implements OnInit {
 
         this.trackMyLocation();
         this.trackMyHeading();
-        this.audioInit();
-
       });
   }
 
@@ -264,6 +291,10 @@ export class ExplorePage implements OnInit {
     this.router.navigate(['/tabs/fence'], { queryParams: { eventId: this.eventId, fenceId: this.myFences[0].id } });
   }
 
+  showGeoInformation(){
+    this.showGeoInfo = !this.showGeoInfo;
+  }
+
   private checkForLocalEventFences() {
     //console.log('checkForLocalEventFences');
 
@@ -287,18 +318,20 @@ export class ExplorePage implements OnInit {
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
-    //console.log('myLocalFence', this.myFences[0]);
+    this.myLocalFence = this.myFences[0];
 
-    this.myFences[0].geoMarkerIcon = this.geoMarkerIconHighlighted;
+    this.myLocalFence.geoMarkerIcon = this.geoMarkerIconHighlighted;
+    this.audioInterval = Math.ceil(this.myLocalFence.distance/10) * 200;
 
-    if (this.myFences[0].distance <= this.reallyCloseMetres) {
+    this.canSelectFence = false;
+
+    if (this.myLocalFence.distance <= this.reallyCloseMetres) {
 
       this.statusMessage = "There is a zone REALLY close!";
-      this.myLocalFence = this.myFences[0];
       this.canSelectFence = true;
       this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
 
-    } else if (this.myFences[0].distance <= this.closeMetres) {
+    } else if (this.myLocalFence.distance <= this.closeMetres) {
 
       this.statusMessage = "There is a zone close by!"
 
@@ -316,7 +349,11 @@ export class ExplorePage implements OnInit {
         this.myLocation.longitude = newLocation.coords.longitude;
         this.myLocation.accuracy = newLocation.coords.accuracy;
 
-        console.log('tracking MyLocation')
+        if(!this.isPlayingLoop){
+          this.audioInit();
+          this.loopAudio();
+        }
+
         if (this.myEvent && this.myFences.length > 0) {
           this.checkForLocalEventFences();
           this.calculateBearing();
@@ -329,9 +366,9 @@ export class ExplorePage implements OnInit {
   private trackMyHeading() {
     this.subscribeToHeading = this.locationService.trackMyHeading()
       .subscribe(data => {
-        this.myHeading = +(data.trueHeading.toFixed(1)); // Use data.magneticHeading?
+        this.myHeading = +(data.trueHeading.toFixed()); // Use data.magneticHeading?
         //this.appEventNotifications.push(`trackMyHeading: ${this.myHeading}`);
-        this.myHeadingToFence = this.locationService.headingToFence(this.myBearing, this.myHeading);
+        this.relativeBearing = +(this.locationService.relativeBearing(this.myBearing, this.myHeading).toFixed());
         this.panAudio();
       });
   }
@@ -352,10 +389,10 @@ export class ExplorePage implements OnInit {
   calculateBearing() {
     // calculate bearing to closest fence location
     let bearing = this.locationService.bearing(
-      this.myLocation.longitude, this.myLocation.latitude,
-      this.myFences[0].location.longitude, this.myFences[0].location.latitude);
+      this.myLocation.latitude, this.myLocation.longitude,
+      this.myFences[0].location.latitude, this.myFences[0].location.longitude);
 
-    this.myBearing = +(bearing.toFixed(1));
+    this.myBearing = +(bearing.toFixed());
 
     //console.log('bearing', this.myBearing);
     //this.appEventNotifications.push(`calculateBearing: ${this.myBearing}`);

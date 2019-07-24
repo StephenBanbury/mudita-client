@@ -17,13 +17,20 @@
       </ion-item>
     </ion-card>  
     <ion-card-subtitle style="text-align: center">
-      <!-- latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br> -->
-      bearing to geofence: {{ myBearing }}<br>
-      heading: {{ myHeading }}<br>
-      heading to geofence: {{ myHeadingToFence }}
-      <!-- <ul *ngFor="let notification of appEventNotifications">
-        <li>{{ notification }}</li>
-      </ul>       -->
+      <div>
+        <button (click)="showGeoInformation()">show geo-info</button>
+      </div>
+      <div *ngIf="showGeoInfo">
+        <!-- latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br> -->
+        <!-- audioInterval: {{ audioInterval }}<br> -->
+        <!-- distance to {{ myLocalFence.tag }}: {{ myLocalFence.distance }} m<br> -->
+        my heading: {{ myHeading }}<br>
+        closest geo-fence : {{ myLocalFence.tag }}<br>
+        bearing to fence: {{ myBearing }} | relative bearing : {{ relativeBearing }}<br>
+        <!-- <ul *ngFor="let notification of appEventNotifications">
+            <li>{{ notification }}</li>
+          </ul>       -->
+      </div>
     </ion-card-subtitle>
     <div>
       <agm-map #map      
@@ -59,7 +66,7 @@
   <ion-footer>
       <ion-card color="medium" style="text-align: center" *ngIf="myEvent">
         <div>
-          <h2>{{ statusMessage }}</h2>
+          <h3>{{ statusMessage }}</h3>
         </div>
         <div>
           <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">
