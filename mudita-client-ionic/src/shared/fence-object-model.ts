@@ -10,5 +10,6 @@ export class FenceObject {
   // public imageUrl: string;
   public selected: boolean;
   public show: boolean;
+  public geoMarkerLabel: any;
   public geoMarkerIcon: GeoMarkerIconObject;
 }

@@ -43,6 +43,7 @@
           <agm-marker *ngIf="fence.show" 
             [latitude]="fence.location.latitude"
             [longitude]="fence.location.longitude"
+            [label]="fence.geoMarkerLabel"
             [iconUrl]="fence.geoMarkerIcon">
           </agm-marker>       
           <!-- <agm-direction 
@@ -61,8 +62,8 @@
           <h2>{{ statusMessage }}</h2>
         </div>
         <div>
-          <ion-button *ngIf="myFences.length > 0 && myFences[0].selected" (click)="onSelectFence()">
-            NAV AWAY!
+          <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">
+            View details for {{ myLocalFence.tag }}
           </ion-button>
         </div>
         <!-- <div *ngFor="let fence of myEvent.fences">

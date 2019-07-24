@@ -21,6 +21,7 @@ export class ExplorePage implements OnInit {
   //appEventNotifications: Array<string> = [];
 
   myFences: Array<FenceObject> = [];
+  myLocalFence: FenceObject;
   title: string = "Mudita Events";
   height = 0;
   myLocation: LocationObject;
@@ -29,6 +30,8 @@ export class ExplorePage implements OnInit {
   myGeoMarkerIcon: GeoMarkerIconObject;
   myGeoMarkerIconRegular: GeoMarkerIconObject;
   myGeoMarkerIconHighlighted: GeoMarkerIconObject;
+
+  //geoMarkerLabel: any;
   geoMarkerIconRegular: GeoMarkerIconObject;
   geoMarkerIconHighlighted: GeoMarkerIconObject;
 
@@ -39,13 +42,14 @@ export class ExplorePage implements OnInit {
   statusMessage: string;
   zoom: number;
   mapType: string;
+  canSelectFence: boolean;
 
   locationObservable: Observable<LocationObject>;
   trackingMyLocation: boolean;
 
   subscribeToHeading: Subscription;
-  subscribeToEventFences: any;
-  subscribeToLocation: any;
+  subscribeToEventFences: Subscription;
+  subscribeToLocation: Subscription;
 
   myHeading: number;
   myBearing: number;
@@ -67,7 +71,7 @@ export class ExplorePage implements OnInit {
     this.route.params.subscribe();
 
     this.height = platform.height() - 56;
-    //this.myFences = new Array<FenceObject>();
+    this.myLocalFence = new FenceObject();
     this.myLocation = new LocationObject();
     this.closeMetres = 10;
     this.reallyCloseMetres = 5;
@@ -128,37 +132,20 @@ export class ExplorePage implements OnInit {
         const eventId = params["eventId"];
         if (eventId) {
           this.getEventFences(eventId);
-          // if(this.trackingMyLocation) {
-          //   this.checkForLocalEventFences();
-          // }
         }
-        // if(!this.myLocation){
-        //   this.myLocation = new LocationObject();
-        // }
-        // this.trackMyLocation();
-        // this.trackMyHeading();
-        // this.audioInit();
       });
-
-    // this.trackMyLocation();
-    // this.trackMyHeading();
-    // this.audioInit();
   }
 
   ionViewWillLeave() {
-    console.log('ionViewWillLeave');
-
+    //console.log('ionViewWillLeave');
     this.unsubscribeEventFences();
     this.unsubscribeHeading();
     this.unsubscribeLocation();
-
-    // this.stopTrackMyHeading();
-    // this.stopTrackMyLocation();
     this.audioElement.pause()
   }
 
   ngOnDestroy() {
-    console.log('ngOnDestroy');
+    //console.log('ngOnDestroy');
     this.unsubscribeEventFences();
     this.unsubscribeHeading();
     this.unsubscribeLocation();
@@ -176,29 +163,28 @@ export class ExplorePage implements OnInit {
   }
 
   panAudio() {
-
-    if(this.myHeadingToFence >= 355 || this.myHeadingToFence <= 5) {
+    if(this.myHeadingToFence >= 350 || this.myHeadingToFence <= 10) {
       this.audioPannerNode.pan.value = 0
     }
 
-    if(this.myHeadingToFence < 355 && this.myHeadingToFence >= 180) {
+    if(this.myHeadingToFence < 350 && this.myHeadingToFence >= 180) {
       this.audioPannerNode.pan.value = -1
     }
 
-    if(this.myHeadingToFence > 5 && this.myHeadingToFence < 180) {
+    if(this.myHeadingToFence > 10 && this.myHeadingToFence < 180) {
       this.audioPannerNode.pan.value = 1;
     }
   }
 
   //TODO lose this when we have proper locations
-  addMockLocations() {
-    const locations = this.muditaApiServce.getMockLocations();
-    let i = 0;
-    this.myFences.forEach(fence => {
-      fence.location = locations[i]
-      i++;
-    })
-  }
+  // addMockLocations() {
+  //   const locations = this.muditaApiServce.getMockLocations();
+  //   let i = 0;
+  //   this.myFences.forEach(fence => {
+  //     fence.location = locations[i]
+  //     i++;
+  //   })
+  // }
 
   getEventFences(eventId: number) {
     this.myEvent = new EventObject();
@@ -210,6 +196,13 @@ export class ExplorePage implements OnInit {
         this.myEvent.title = eventFences.event.title;
         this.myEvent.description = eventFences.event.description;
         eventFences.fences.forEach(fence => {
+          const markerLabel = {
+            color: "#000",
+            fontFamily: "",
+            fontSize: "16px",
+            fontWeight: "bold",
+            text: fence.tag
+          };
           this.myFences.push({
             id: fence.id,
             tag: fence.tag,
@@ -221,16 +214,10 @@ export class ExplorePage implements OnInit {
             distance: 0,
             selected: false,
             show: true,
+            geoMarkerLabel: markerLabel,
             geoMarkerIcon: this.geoMarkerIconRegular
           })
         })
-
-        //TODO lose this when we have proper locations
-        //this.addMockLocations();
-
-        // if (this.trackingMyLocation) {
-        //   this.checkForLocalEventFences();
-        // }
 
         if (!this.myLocation) {
           this.myLocation = new LocationObject();
@@ -261,25 +248,31 @@ export class ExplorePage implements OnInit {
 
     newFence.location = newFenceLocation;
     newFence.tag = "New fence " + (this.myFences.length + 1).toString();
-    newFence.selected = false;
     newFence.show = true;
+    newFence.geoMarkerLabel = {
+      color: "#000",
+      fontFamily: "",
+      fontSize: "16px",
+      fontWeight: "bold",
+      text: newFence.tag
+    };
     this.myFences.push(newFence);
-
-    //this.checkForLocalEventFences();
   }
 
   onSelectFence() {
+    this.myFences[0].selected = true;
     this.router.navigate(['/tabs/fence'], { queryParams: { eventId: this.eventId, fenceId: this.myFences[0].id } });
   }
 
   private checkForLocalEventFences() {
+    //console.log('checkForLocalEventFences');
+
     if (this.myFences.length == 0) {
       this.statusMessage = "This event has no fences!";
       return false;
     }
 
-    for(let i: number = 0; i <= this.myFences.length -1; i++){
-      let fence = this.myFences[i];
+    this.myFences.forEach(fence => {
       fence.distance = Math.round(
         this.locationService.getDistanceFromLatLonInKm(
           this.myLocation.latitude,
@@ -287,35 +280,43 @@ export class ExplorePage implements OnInit {
           fence.location.latitude,
           fence.location.longitude,
         ));
-      fence.show = true;
       fence.geoMarkerIcon = this.geoMarkerIconRegular;
-      fence.selected = fence.distance <= this.reallyCloseMetres;
-    }
+    })
 
     this.myFences.sort((a, b) =>
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
+    //console.log('myLocalFence', this.myFences[0]);
+
     this.myFences[0].geoMarkerIcon = this.geoMarkerIconHighlighted;
 
     if (this.myFences[0].distance <= this.reallyCloseMetres) {
+
       this.statusMessage = "There is a zone REALLY close!";
+      this.myLocalFence = this.myFences[0];
+      this.canSelectFence = true;
       this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
+
     } else if (this.myFences[0].distance <= this.closeMetres) {
+
       this.statusMessage = "There is a zone close by!"
+
     } else {
+
       this.statusMessage = "No events nearby";
       this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
     }
   }
 
   private trackMyLocation() {
-    this.subscribeToLocation = this.locationService.watchMyLocation(false)
+    this.subscribeToLocation = this.locationService.watchMyLocation(true)
       .subscribe(newLocation => {
         this.myLocation.latitude = newLocation.coords.latitude;
         this.myLocation.longitude = newLocation.coords.longitude;
         this.myLocation.accuracy = newLocation.coords.accuracy;
 
+        console.log('tracking MyLocation')
         if (this.myEvent && this.myFences.length > 0) {
           this.checkForLocalEventFences();
           this.calculateBearing();
@@ -329,7 +330,6 @@ export class ExplorePage implements OnInit {
     this.subscribeToHeading = this.locationService.trackMyHeading()
       .subscribe(data => {
         this.myHeading = +(data.trueHeading.toFixed(1)); // Use data.magneticHeading?
-        //this.myHeading = data.magneticHeading;
         //this.appEventNotifications.push(`trackMyHeading: ${this.myHeading}`);
         this.myHeadingToFence = this.locationService.headingToFence(this.myBearing, this.myHeading);
         this.panAudio();
