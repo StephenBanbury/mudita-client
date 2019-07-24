@@ -169,7 +169,6 @@ export class ExplorePage implements OnInit {
     this.audioSourceNode = this.audioContext.createMediaElementSource(this.audioElement);
     this.audioSourceNode.connect(this.audioPannerNode)
     this.audioPannerNode.connect(this.audioContext.destination)
-    //this.audioInterval = 400;
   }
 
   loopAudio() {
@@ -180,26 +179,6 @@ export class ExplorePage implements OnInit {
       that.loopAudio();      
     }, this.audioInterval);
   }
-
-  // loopAudio() {
-  //   this.playLoop = setInterval(() => {
-  //     this.audioElement.play();
-  //   }, this.audioInterval);
-  // }
-
-  // panAudio() {
-  //   if(this.myHeading >= this.myBearing - 10 || this.myHeading <= this.myBearing + 10) {
-  //     this.audioPannerNode.pan.value = 0
-  //   }
-
-  //   if(this.myHeading < this.myBearing - 10 && this.myHeading >= this.myBearing - 180) {
-  //     this.audioPannerNode.pan.value = -1
-  //   }
-
-  //   if(this.myHeading > this.myBearing - 180 && this.myHeading < this.myBearing + 10) {
-  //     this.audioPannerNode.pan.value = 1;
-  //   }
-  // }
 
   panAudio() {
     if(this.relativeBearing >= 350 || this.relativeBearing <= 10) {
