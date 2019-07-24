@@ -15,10 +15,10 @@ import { GeoMarkerIconObject } from 'src/shared/geo-marker-icon-object.model';
   styleUrls: ["explore.page.scss"]
 })
 export class ExplorePage implements OnInit {
-  @Input() myEvent: EventObject;
+  myEvent: EventObject;
 
   // I'm using this to inform me what is happening on mobile device as a substitute for console.log
-  //appEventNotifications: Array<string> = []; 
+  //appEventNotifications: Array<string> = [];
 
   myFences: Array<FenceObject> = [];
   title: string = "Mudita Events";
@@ -42,7 +42,11 @@ export class ExplorePage implements OnInit {
 
   locationObservable: Observable<LocationObject>;
   trackingMyLocation: boolean;
-  headingSubscription: Subscription;
+
+  subscribeToHeading: Subscription;
+  subscribeToEventFences: any;
+  subscribeToLocation: any;
+
   myHeading: number;
   myBearing: number;
   myHeadingToFence: number;
@@ -114,41 +118,53 @@ export class ExplorePage implements OnInit {
   }
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      const eventId = params["eventId"];
-      if (eventId) {
-        this.getEventFences(eventId);
-        if(this.trackingMyLocation) {
-          this.checkForLocalEventFences();
+    this.route.queryParams
+      .subscribe(params => {
+
+        this.myEvent = new EventObject();
+        this.myFences = [];
+        this.trackingMyLocation = false;
+
+        const eventId = params["eventId"];
+        if (eventId) {
+          this.getEventFences(eventId);
+          // if(this.trackingMyLocation) {
+          //   this.checkForLocalEventFences();
+          // }
         }
-      }
-      if(!this.myLocation){ 
-        this.myLocation = new LocationObject(); 
-      }
-      this.trackMyLocation();
-      this.trackMyHeading(); 
-      this.audioInit();
-    });
+        // if(!this.myLocation){
+        //   this.myLocation = new LocationObject();
+        // }
+        // this.trackMyLocation();
+        // this.trackMyHeading();
+        // this.audioInit();
+      });
 
     // this.trackMyLocation();
-    // this.trackMyHeading(); 
+    // this.trackMyHeading();
     // this.audioInit();
   }
 
   ionViewWillLeave() {
     console.log('ionViewWillLeave');
+
+    this.unsubscribeEventFences();
+    this.unsubscribeHeading();
+    this.unsubscribeLocation();
+
     // this.stopTrackMyHeading();
-    // this.stopTrackMyLocation(); 
-    this.audioElement.pause()  
+    // this.stopTrackMyLocation();
+    this.audioElement.pause()
   }
 
   ngOnDestroy() {
     console.log('ngOnDestroy');
-    this.stopTrackMyHeading();
-    this.stopTrackMyLocation();    
+    this.unsubscribeEventFences();
+    this.unsubscribeHeading();
+    this.unsubscribeLocation();
   }
 
-  audioInit() {    
+  audioInit() {
     this.audioContext = new AudioContext();
     this.audioElement = new Audio('../../assets/120BPM_metronome.mp3');
     this.audioPannerNode = this.audioContext.createStereoPanner()
@@ -158,8 +174,8 @@ export class ExplorePage implements OnInit {
     this.audioPannerNode.connect(this.audioContext.destination)
     this.audioElement.play()
   }
-  
-  panAudio() {    
+
+  panAudio() {
 
     if(this.myHeadingToFence >= 355 || this.myHeadingToFence <= 5) {
       this.audioPannerNode.pan.value = 0
@@ -180,7 +196,7 @@ export class ExplorePage implements OnInit {
     let i = 0;
     this.myFences.forEach(fence => {
       fence.location = locations[i]
-      i++; 
+      i++;
     })
   }
 
@@ -188,7 +204,7 @@ export class ExplorePage implements OnInit {
     this.myEvent = new EventObject();
     this.myFences = new Array<FenceObject>();
 
-    this.muditaApiServce.getEventFences(eventId)
+    this.subscribeToEventFences = this.muditaApiServce.getEventFences(eventId)
       .subscribe(eventFences => {
         this.myEvent.id = eventFences.event.id;
         this.myEvent.title = eventFences.event.title;
@@ -197,7 +213,11 @@ export class ExplorePage implements OnInit {
           this.myFences.push({
             id: fence.id,
             tag: fence.tag,
-            location: new LocationObject(), //TODO
+            location: {
+              accuracy: 0,
+              latitude: fence.latitude,
+              longitude: fence.longitude
+            },
             distance: 0,
             selected: false,
             show: true,
@@ -206,11 +226,20 @@ export class ExplorePage implements OnInit {
         })
 
         //TODO lose this when we have proper locations
-        this.addMockLocations();
+        //this.addMockLocations();
 
-        if (this.trackingMyLocation) {
-          this.checkForLocalEventFences();
+        // if (this.trackingMyLocation) {
+        //   this.checkForLocalEventFences();
+        // }
+
+        if (!this.myLocation) {
+          this.myLocation = new LocationObject();
         }
+
+        this.trackMyLocation();
+        this.trackMyHeading();
+        this.audioInit();
+
       });
   }
 
@@ -236,7 +265,7 @@ export class ExplorePage implements OnInit {
     newFence.show = true;
     this.myFences.push(newFence);
 
-    this.checkForLocalEventFences();
+    //this.checkForLocalEventFences();
   }
 
   onSelectFence() {
@@ -270,7 +299,7 @@ export class ExplorePage implements OnInit {
     this.myFences[0].geoMarkerIcon = this.geoMarkerIconHighlighted;
 
     if (this.myFences[0].distance <= this.reallyCloseMetres) {
-      this.statusMessage = "There is a zone REALLY close!"; 
+      this.statusMessage = "There is a zone REALLY close!";
       this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
     } else if (this.myFences[0].distance <= this.closeMetres) {
       this.statusMessage = "There is a zone close by!"
@@ -281,39 +310,43 @@ export class ExplorePage implements OnInit {
   }
 
   private trackMyLocation() {
-    this.locationService.watchMyLocation(false).subscribe(
-      newLocation => {
+    this.subscribeToLocation = this.locationService.watchMyLocation(false)
+      .subscribe(newLocation => {
         this.myLocation.latitude = newLocation.coords.latitude;
         this.myLocation.longitude = newLocation.coords.longitude;
         this.myLocation.accuracy = newLocation.coords.accuracy;
-        
-        this.calculateBearing();
-        
-        if (this.myEvent) {
+
+        if (this.myEvent && this.myFences.length > 0) {
           this.checkForLocalEventFences();
+          this.calculateBearing();
         }
-    });
+      });
     this.trackingMyLocation = true;
     //this.appEventNotifications.push('trackMyLocation');
   }
 
-  private stopTrackMyLocation() {
-    this.locationService.stopWatchLocation();
-  }
-
   private trackMyHeading() {
-    this.headingSubscription = this.locationService.trackMyHeading()
+    this.subscribeToHeading = this.locationService.trackMyHeading()
       .subscribe(data => {
         this.myHeading = +(data.trueHeading.toFixed(1)); // Use data.magneticHeading?
         //this.myHeading = data.magneticHeading;
         //this.appEventNotifications.push(`trackMyHeading: ${this.myHeading}`);
         this.myHeadingToFence = this.locationService.headingToFence(this.myBearing, this.myHeading);
         this.panAudio();
-      });    
+      });
   }
 
-  private stopTrackMyHeading() {
-    this.headingSubscription.unsubscribe();
+  private unsubscribeHeading() {
+    this.subscribeToHeading.unsubscribe();
+  }
+
+  private unsubscribeLocation() {
+    this.locationService.stopWatchLocation();
+    this.subscribeToLocation.unsubscribe();
+  }
+
+  private unsubscribeEventFences() {
+    this.subscribeToEventFences.unsubscribe();
   }
 
   calculateBearing() {
@@ -323,7 +356,7 @@ export class ExplorePage implements OnInit {
       this.myFences[0].location.longitude, this.myFences[0].location.latitude);
 
     this.myBearing = +(bearing.toFixed(1));
-      
+
     //console.log('bearing', this.myBearing);
     //this.appEventNotifications.push(`calculateBearing: ${this.myBearing}`);
   }
