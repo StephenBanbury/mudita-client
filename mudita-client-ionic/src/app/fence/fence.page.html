@@ -1,18 +1,17 @@
 <ion-header>
   <ion-toolbar color="primary"  style="text-align: center">
-    <ion-title>Fence</ion-title>
+    <ion-title>{{ myEvent.title }}</ion-title>
   </ion-toolbar>
 </ion-header>
-
+<br><br>
 <ion-content>
-  <div class="row">
-    <ul *ngFor="let imageJson of imageJsons">
-      <li>
-        <h2><a target="_blank" rel="noopener"
-            href='{{ imageJson.urls.raw + "&w=1500&dpi=2" }}'>{{ imageJson.alt_description == null ? 'untitled' : imageJson.alt_description }}</a>
-        </h2>
-      </li>
-    </ul>
-  </div>
-
+  <ion-label text-center>
+    <h2>{{ myEvent.description }}</h2>
+  </ion-label>  
+  <br><hr><br>
+  <ion-card [ngStyle]="myStyles">
+    <h4>{{ myFence.tag }}</h4>
+    <h4>{{ myFence.text }}</h4>
+  </ion-card>
 </ion-content>
+

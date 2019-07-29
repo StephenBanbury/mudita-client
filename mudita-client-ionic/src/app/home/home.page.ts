@@ -22,7 +22,6 @@ export class HomePage implements OnInit {
   }
 
   ngOnInit() {
-    console.log('home - onInit');
     this.getEvents();
   }
 
@@ -30,6 +29,7 @@ export class HomePage implements OnInit {
     this.muditaApiServce.getEvents()
     .subscribe(events => {
         events.data.forEach(e => {
+          //console.log('event', e)
           this.events.push({
             id: e.id,
             title: e.title,
@@ -41,12 +41,6 @@ export class HomePage implements OnInit {
   }
 
   onSelectEvent(event: EventObject) {
-    // this.eventSelected.emit({
-    //   id: event.id,
-    //   title: event.title,
-    //   description: event.description
-    // });
-
     this.router.navigate(['/tabs/explore/'], { queryParams: { eventId: event.id } });
   }
 

@@ -1,4 +1,4 @@
-export interface IEvent {
+export interface IEvents {
   data: [
     {
       id: number,

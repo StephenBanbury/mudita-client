@@ -61,12 +61,12 @@ export class LocationService {
   
   // https://diydrones.com/profiles/blogs/the-difference-between-heading
   relativeBearing(bearing: number, heading: number) {
-    let headingToFence = heading - bearing;
+    let relativeBearing = heading - bearing;
 
-    if(headingToFence < 0) {
-      headingToFence = headingToFence + 360;
+    if(relativeBearing < 0) {
+      relativeBearing = relativeBearing + 360;
     }
-    return headingToFence;
+    return relativeBearing;
   }
   
   private toRadians(degrees) {

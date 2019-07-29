@@ -12,4 +12,7 @@ export class FenceObject {
   public show: boolean;
   public geoMarkerLabel: any;
   public geoMarkerIcon: GeoMarkerIconObject;
+  public text: string;
+  public textColour: string;
+  public bgColour: string;
 }

@@ -79,8 +79,8 @@ export class ExplorePage implements OnInit {
     this.myLocalFence = new FenceObject();
     this.myLocalFence.distance = 99999999;
     this.myLocation = new LocationObject();
-    this.closeMetres = 10;
-    this.reallyCloseMetres = 5;
+    this.closeMetres = 15;
+    this.reallyCloseMetres = 10;
     this.zoom = 18;
     this.mapType = "roadmap";
     this.showGeoInfo = false;
@@ -130,13 +130,9 @@ export class ExplorePage implements OnInit {
   }
 
   ngOnInit() {
+    this.trackingMyLocation = false;
     this.route.queryParams
       .subscribe(params => {
-
-        this.myEvent = new EventObject();
-        this.myFences = [];
-        this.trackingMyLocation = false;
-
         const eventId = params["eventId"];
         if (eventId) {
           this.getEventFences(eventId);
@@ -223,7 +219,10 @@ export class ExplorePage implements OnInit {
             selected: false,
             show: true,
             geoMarkerLabel: markerLabel,
-            geoMarkerIcon: this.geoMarkerIconRegular
+            geoMarkerIcon: this.geoMarkerIconRegular,
+            text: "",
+            textColour: "",
+            bgColour: ""
           })
         })
 
@@ -266,8 +265,8 @@ export class ExplorePage implements OnInit {
   }
 
   onSelectFence() {
-    this.myFences[0].selected = true;
-    this.router.navigate(['/tabs/fence'], { queryParams: { eventId: this.eventId, fenceId: this.myFences[0].id } });
+    this.router.navigate(['/tabs/fence'], { queryParams: { eventId: this.myEvent.id, fenceId: this.myLocalFence.id } });
+    //this.router.navigate(['/tabs/fence'], { queryParams: { eventId: 1, fenceId: 2 } });
   }
 
   showGeoInformation(){
@@ -298,9 +297,11 @@ export class ExplorePage implements OnInit {
     );
 
     this.myLocalFence = this.myFences[0];
-
     this.myLocalFence.geoMarkerIcon = this.geoMarkerIconHighlighted;
+
+    // audio 'sonar' interval based on distance. Max = equiv 100m, otherwise it's too long a gap to be useful
     this.audioInterval = Math.ceil(this.myLocalFence.distance/10) * 200;
+    if(this.audioInterval > 2000){ this.audioInterval = 2000 };
 
     this.canSelectFence = false;
 
@@ -368,8 +369,10 @@ export class ExplorePage implements OnInit {
   calculateBearing() {
     // calculate bearing to closest fence location
     let bearing = this.locationService.bearing(
-      this.myLocation.latitude, this.myLocation.longitude,
-      this.myFences[0].location.latitude, this.myFences[0].location.longitude);
+      this.myLocation.latitude, 
+      this.myLocation.longitude,
+      this.myLocalFence.location.latitude, 
+      this.myLocalFence.location.longitude);
 
     this.myBearing = +(bearing.toFixed());
 
