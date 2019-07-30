@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MuditaApiService } from '../../services/mudita-api.service';
-import { IUnsplashImage } from '../../shared/unsplash-image';
-import { EventObject } from 'src/shared/event-object.model';
-import { FenceObject } from 'src/shared/fence-object-model';
+import { MuditaApiService } from '../services/mudita-api.service';
+import { EventObject } from 'src/app/shared/event-object.model';
+import { FenceObject } from 'src/app/shared/fence-object-model';
 import { Subscription } from 'rxjs';
-import { ElementSchemaRegistry } from '@angular/compiler';
 
 @Component({
   selector: "app-fence",
@@ -13,8 +11,6 @@ import { ElementSchemaRegistry } from '@angular/compiler';
   styleUrls: ["fence.page.scss"]
 })
 export class FencePage implements OnInit {
-  //imageJsons: IUnsplashImage[] = new Array<IUnsplashImage>();
-
   myEvent: EventObject;
   myFence: FenceObject;
   myStyles: any;

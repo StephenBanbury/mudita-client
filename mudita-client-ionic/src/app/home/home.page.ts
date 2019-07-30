@@ -1,7 +1,7 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
-import { EventObject } from '../../shared/event-object.model'
-import { MuditaApiService } from '../../services/mudita-api.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { EventObject } from '../shared/event-object.model'
+import { MuditaApiService } from '../services/mudita-api.service';
+import { Router, NavigationExtras } from '@angular/router';
 
 @Component({
   selector: "app-home",
@@ -11,20 +11,47 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class HomePage implements OnInit {  
   events: Array<EventObject>;
   eventIsSelected: boolean;
-
-  @Output() eventSelected = new EventEmitter<EventObject>();
+  preferences: any;
 
   constructor(
     private muditaApiServce: MuditaApiService, 
-    private router: Router,
+    private router: Router
   ) {
     this.events = new Array<EventObject>();
+    
+    // this.preferences = [
+    //   {
+    //     id: '1',
+    //     name: 'showMap',
+    //     text: 'Show map',
+    //     disabled: false,
+    //     checked: true
+    //   }, {
+    //     id: '2',
+    //     name: 'showGeoInfo',
+    //     text: 'Show geolocation information',
+    //     disabled: false,
+    //     checked: false
+    //   }, {
+    //     id: '3',
+    //     name: 'useAudio',
+    //     text: 'Use audio',
+    //     disabled: false,
+    //     checked: true
+    //   },
+    // ];
   }
 
   ngOnInit() {
     this.getEvents();
-  }
 
+    this.preferences = {
+      showMap: true,
+      showGeoInfo: false,
+      useAudio: true
+    }
+  }
+  
   getEvents() {
     this.muditaApiServce.getEvents()
     .subscribe(events => {
@@ -41,7 +68,15 @@ export class HomePage implements OnInit {
   }
 
   onSelectEvent(event: EventObject) {
-    this.router.navigate(['/tabs/explore/'], { queryParams: { eventId: event.id } });
+    
+    let navigationExtras: NavigationExtras = {
+      state: {
+        event: event,
+        preferences: this.preferences
+      }
+    };
+
+    this.router.navigate(['/tabs/explore/'], navigationExtras);
   }
 
 }

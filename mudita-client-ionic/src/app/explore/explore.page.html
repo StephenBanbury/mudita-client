@@ -1,38 +1,28 @@
 <ion-header>
     <ion-toolbar color="primary"  style="text-align: center">
       <ion-title>
-       Mudita
+          {{ myEvent.title }}
       </ion-title>
     </ion-toolbar>
   </ion-header>
 
   <ion-content>  
-    <ion-card>
-      <ion-item>
-        <ion-label text-center>
-        <h1 *ngIf="myEvent">
-          {{ myEvent.title }}
-        </h1>
-      </ion-label>
-      </ion-item>
-    </ion-card>  
-    <ion-card-subtitle style="text-align: center">
+    <ion-card-subtitle padding style="text-align: center">
       <div>
         <button (click)="showGeoInformation()">show geo-info</button>
       </div>
-      <div *ngIf="showGeoInfo">
+      <div padding *ngIf="preferences.showGeoInfo">
         <!-- latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br> -->
         <!-- audioInterval: {{ audioInterval }}<br> -->
         <!-- distance to {{ myLocalFence.tag }}: {{ myLocalFence.distance }} m<br> -->
-        my heading: {{ myHeading }}<br>
-        closest geo-fence : {{ myLocalFence.tag }}<br>
-        bearing to fence: {{ myBearing }} | relative bearing : {{ relativeBearing }}<br>
+        <!-- closest geo-fence : {{ myLocalFence.tag }}<br> -->
+        dist: {{ myLocalFence.distance }} | fence: {{ myBearing }} | heading: {{ myHeading }} | bearing: {{ relativeBearing }}
         <!-- <ul *ngFor="let notification of appEventNotifications">
             <li>{{ notification }}</li>
           </ul>       -->
       </div>
     </ion-card-subtitle>
-    <div>
+    <div *ngIf="preferences.showMap">
       <agm-map #map      
         (mapClick)="onCreateNewFence($event)"   
         [style.height.px]="height"

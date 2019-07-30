@@ -1,13 +1,13 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Observable, Subscription } from 'rxjs';
-import { LocationService } from '../../services/location.service'
-import { EventObject } from '../../shared/event-object.model'
-import { FenceObject } from '../../shared/fence-object-model';
-import { LocationObject } from '../../shared/location-object.model'
-import { MuditaApiService } from '../../services/mudita-api.service';
+import { LocationService } from '../services/location.service'
+import { EventObject } from '../shared/event-object.model'
+import { FenceObject } from '../shared/fence-object-model';
+import { LocationObject } from '../shared/location-object.model'
+import { MuditaApiService } from '../services/mudita-api.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GeoMarkerIconObject } from 'src/shared/geo-marker-icon-object.model';
+import { GeoMarkerIconObject } from 'src/app/shared/geo-marker-icon-object.model';
 
 @Component({
   selector: "app-explore",
@@ -25,7 +25,6 @@ export class ExplorePage implements OnInit {
   title: string = "Mudita Events";
   height = 0;
   myLocation: LocationObject;
-  showGeoInfo: boolean;
 
   myGeoMarkerLabel: any;
   myGeoMarkerIcon: GeoMarkerIconObject;
@@ -65,15 +64,25 @@ export class ExplorePage implements OnInit {
   playLoop: any;
   isPlayingLoop: boolean;
 
+  //showMap: boolean;
+  preferences: any;
+
   constructor(
     public platform: Platform,
     private router: Router,
     private route: ActivatedRoute,
     private locationService: LocationService,
-    private muditaApiServce: MuditaApiService
-    //private nativeAudio: NativeAudio
+    private muditaApiServce: MuditaApiService,
   ) {
-    this.route.params.subscribe();
+
+    this.route.queryParams.subscribe(() => {
+      if (this.router.getCurrentNavigation().extras.state) {
+        this.myEvent = this.router.getCurrentNavigation().extras.state.event;   
+        //this.showMap = this.router.getCurrentNavigation().extras.state.showMap;    
+        this.preferences = this.router.getCurrentNavigation().extras.state.preferences;
+        this.getEventFences(this.myEvent.id); 
+      }
+    });
 
     this.height = platform.height() - 56;
     this.myLocalFence = new FenceObject();
@@ -83,7 +92,6 @@ export class ExplorePage implements OnInit {
     this.reallyCloseMetres = 10;
     this.zoom = 18;
     this.mapType = "roadmap";
-    this.showGeoInfo = false;
 
     this.myGeoMarkerLabel = {
       color: "#000",
@@ -131,13 +139,6 @@ export class ExplorePage implements OnInit {
 
   ngOnInit() {
     this.trackingMyLocation = false;
-    this.route.queryParams
-      .subscribe(params => {
-        const eventId = params["eventId"];
-        if (eventId) {
-          this.getEventFences(eventId);
-        }
-      });
   }
 
   ionViewWillLeave() {
@@ -160,7 +161,7 @@ export class ExplorePage implements OnInit {
 
   audioInit() {
     this.audioContext = new AudioContext();
-    this.audioElement = new Audio('../../assets/beep1_mono.mp3');
+    this.audioElement = new Audio('../../assets/sounds/beep1_mono.mp3');
     this.audioPannerNode = this.audioContext.createStereoPanner()
     this.audioSourceNode = this.audioContext.createMediaElementSource(this.audioElement);
     this.audioSourceNode.connect(this.audioPannerNode)
@@ -270,7 +271,7 @@ export class ExplorePage implements OnInit {
   }
 
   showGeoInformation(){
-    this.showGeoInfo = !this.showGeoInfo;
+    this.preferences.showGeoInfo = !this.preferences.showGeoInfo;
   }
 
   private checkForLocalEventFences() {

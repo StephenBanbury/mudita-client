@@ -3,11 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { IUnsplashImage } from '../shared/unsplash-image';
 import { EventObject } from '../shared/event-object.model';
 import { Observable } from 'rxjs';
-import { MockEventApi as MockEventApi, MockLocationApi } from '../shared/mock-api';
+//import { MockEventApi as MockEventApi, MockLocationApi } from '../shared/mock-api';
 import { IEvents } from '../shared/events-interface.model'
-import { IEventFences } from 'src/shared/event-fences-interface.model';
-import { LocationObject } from 'src/shared/location-object.model';
-import { IFence } from 'src/shared/fence-interface.model';
+import { IEventFences } from 'src/app/shared/event-fences-interface.model';
+import { LocationObject } from 'src/app/shared/location-object.model';
+import { IFence } from 'src/app/shared/fence-interface.model';
 
 // `https://mudita.fun/api/v1/events` - all public events
 // `https://mudita.fun/api/v1/events/<event id>` - specific event
@@ -46,32 +46,32 @@ export class MuditaApiService {
     return this.http.get<IFence>(url);
   }
 
-  getMockEvents(): Array<EventObject> {
-    let events = new Array<EventObject>();
+  // getMockEvents(): Array<EventObject> {
+  //   let events = new Array<EventObject>();
 
-    MockEventApi.data.forEach(event => {
-      let newEvent = new EventObject();
-      newEvent.id = event.id;
-      newEvent.title = event.title;
+  //   MockEventApi.data.forEach(event => {
+  //     let newEvent = new EventObject();
+  //     newEvent.id = event.id;
+  //     newEvent.title = event.title;
 
-      events.push(newEvent);
-    })
+  //     events.push(newEvent);
+  //   })
 
-    return events;
-  }
+  //   return events;
+  // }
 
-  getMockLocations(): LocationObject[] {
-    let locations = new Array<LocationObject>();
+  // getMockLocations(): LocationObject[] {
+  //   let locations = new Array<LocationObject>();
 
-    MockLocationApi.location.forEach(loc => {
-      locations.push({
-        accuracy: loc.accuracy,
-        latitude: loc.latitude,
-        longitude: loc.longitude
-      })
-    })
-    return locations;
-  }
+  //   MockLocationApi.location.forEach(loc => {
+  //     locations.push({
+  //       accuracy: loc.accuracy,
+  //       latitude: loc.latitude,
+  //       longitude: loc.longitude
+  //     })
+  //   })
+  //   return locations;
+  // }
 
   getImage() {
     const url = this.imageApiUrl + this.imageApiKey;
