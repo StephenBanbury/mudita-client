@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IUnsplashImage } from '../shared/unsplash-image';
-import { EventObject } from '../shared/event-object.model';
+import { EventModel } from '../shared/event-object.model';
 import { Observable } from 'rxjs';
 //import { MockEventApi as MockEventApi, MockLocationApi } from '../shared/mock-api';
 import { IEvents } from '../shared/events-interface.model'
 import { IEventFences } from 'src/app/shared/event-fences-interface.model';
-import { LocationObject } from 'src/app/shared/location-object.model';
+import { LocationModel } from 'src/app/shared/location-object.model';
 import { IFence } from 'src/app/shared/fence-interface.model';
+import { FenceModel } from '../shared/fence-object-model';
 
 // `https://mudita.fun/api/v1/events` - all public events
 // `https://mudita.fun/api/v1/events/<event id>` - specific event
@@ -44,6 +45,17 @@ export class MuditaApiService {
   getFenceDetails(fenceId: number): Observable<IFence> {
     const url = `${this.API_URL_BASE}/${this.API_CURR_VERSION}/fences/${fenceId}`;
     return this.http.get<IFence>(url);
+  }
+
+  mockFenceDetails(fenceId: number): FenceModel {
+    let response = new FenceModel();
+    response.id = fenceId;
+    response.tag = 'My new fence';
+    response.text = "This is a placeholder for your on-the-fly-created geofence."
+    response.textColour = '#222';
+    response.bgColour = '#fff';
+    return response;
+
   }
 
   // getMockEvents(): Array<EventObject> {

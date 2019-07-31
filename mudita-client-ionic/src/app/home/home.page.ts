@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { EventObject } from '../shared/event-object.model'
+import { EventModel } from '../shared/event-object.model'
 import { MuditaApiService } from '../services/mudita-api.service';
 import { Router, NavigationExtras } from '@angular/router';
+import { PreferencesModel } from '../shared/preferences-object.model';
 
 @Component({
   selector: "app-home",
@@ -9,47 +10,29 @@ import { Router, NavigationExtras } from '@angular/router';
   styleUrls: ["home.page.scss"]
 })
 export class HomePage implements OnInit {  
-  events: Array<EventObject>;
+  events: Array<EventModel>;
   eventIsSelected: boolean;
-  preferences: any;
+  preferences: PreferencesModel;
 
   constructor(
     private muditaApiServce: MuditaApiService, 
     private router: Router
   ) {
-    this.events = new Array<EventObject>();
-    
-    // this.preferences = [
-    //   {
-    //     id: '1',
-    //     name: 'showMap',
-    //     text: 'Show map',
-    //     disabled: false,
-    //     checked: true
-    //   }, {
-    //     id: '2',
-    //     name: 'showGeoInfo',
-    //     text: 'Show geolocation information',
-    //     disabled: false,
-    //     checked: false
-    //   }, {
-    //     id: '3',
-    //     name: 'useAudio',
-    //     text: 'Use audio',
-    //     disabled: false,
-    //     checked: true
-    //   },
-    // ];
+    this.events = new Array<EventModel>();  
+
+    this.preferences = new PreferencesModel();  
+    this.preferences.map = true;
+    this.preferences.visualBearing = false;
+    this.preferences.audioBearing = true;
+    this.preferences.direction = false;
   }
 
   ngOnInit() {
     this.getEvents();
+  }
 
-    this.preferences = {
-      showMap: true,
-      showGeoInfo: false,
-      useAudio: true
-    }
+  updatePreferences() {
+    console.log(this.preferences);
   }
   
   getEvents() {
@@ -67,7 +50,7 @@ export class HomePage implements OnInit {
     );
   }
 
-  onSelectEvent(event: EventObject) {
+  onSelectEvent(event: EventModel) {
     
     let navigationExtras: NavigationExtras = {
       state: {

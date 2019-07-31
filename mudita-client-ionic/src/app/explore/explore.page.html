@@ -9,20 +9,20 @@
   <ion-content>  
     <ion-card-subtitle padding style="text-align: center">
       <div>
-        <button (click)="showGeoInformation()">show geo-info</button>
+        <button padding (click)="showMap()">Map</button>
+        <button padding (click)="visualBearing()">Visual</button>
+        <button padding (click)="audioBearing()">Audio</button>
+        <button padding (click)="showDirection()">Direction</button>
       </div>
-      <div padding *ngIf="preferences.showGeoInfo">
+      <div padding *ngIf="preferences.visualBearing">
         <!-- latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br> -->
         <!-- audioInterval: {{ audioInterval }}<br> -->
         <!-- distance to {{ myLocalFence.tag }}: {{ myLocalFence.distance }} m<br> -->
         <!-- closest geo-fence : {{ myLocalFence.tag }}<br> -->
-        dist: {{ myLocalFence.distance }} | fence: {{ myBearing }} | heading: {{ myHeading }} | bearing: {{ relativeBearing }}
-        <!-- <ul *ngFor="let notification of appEventNotifications">
-            <li>{{ notification }}</li>
-          </ul>       -->
+        distance: {{ myLocalFence.distance }} | bearing: {{ myHeading - myBearing }}
       </div>
     </ion-card-subtitle>
-    <div *ngIf="preferences.showMap">
+    <div *ngIf="preferences.map">
       <agm-map #map      
         (mapClick)="onCreateNewFence($event)"   
         [style.height.px]="height"
@@ -43,10 +43,10 @@
             [label]="fence.geoMarkerLabel"
             [iconUrl]="fence.geoMarkerIcon">
           </agm-marker>       
-          <!-- <agm-direction 
+          <agm-direction *ngIf="preferences.direction"
             [origin]="{ lat: myLocation.latitude, lng: myLocation.longitude }" 
-            [destination]="{ lat: fence.location.latitude, lng: fence.location.longitude }">
-          </agm-direction> -->
+            [destination]="{ lat: myLocalFence.location.latitude, lng: myLocalFence.location.longitude }">
+          </agm-direction>
         </div> 
       </agm-map>
     </div>

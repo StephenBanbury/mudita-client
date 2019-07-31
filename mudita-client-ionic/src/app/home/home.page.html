@@ -6,28 +6,44 @@
       <button (click)="onSelectEvent(event)">{{ event.title }}</button>
   </ion-list>
 
-<!-- 
   <ion-list>
-    <ion-list-header>
-      <ion-label>Prefences</ion-label>
-    </ion-list-header>
-
-    <ion-item *ngFor="let item of preferences" 
-      (ionFocus)="radioFocus()" 
-      (ionSelect)="radioSelect($event)"
-      (ionBlur)="radioBlur()">
-
-      <ion-label>{{item.text}}</ion-label>
-      
-      <ion-radio slot="start" 
-        id="{{item.id}}" 
-        value="{{item.value}}" 
-        checked="{{item.checked}}" 
-        color="{{item.color}}"
-        disabled="{{item.disabled}}">
-      </ion-radio>
-
+  
+    <ion-item>
+      <ion-label>Map</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.map" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
     </ion-item>
 
-  </ion-list> -->
+    <ion-item>
+      <ion-label>Visual Bearing</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.visualBearing" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
+    </ion-item>
+  
+    <ion-item>
+      <ion-label>Audio Bearing</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.audioBearing" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
+    </ion-item>
+  
+    <ion-item>
+      <ion-label>Direction</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.direction" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
+    </ion-item>
+  
+  </ion-list>
+
 </ion-content>

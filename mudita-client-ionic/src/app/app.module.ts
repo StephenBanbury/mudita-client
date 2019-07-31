@@ -24,7 +24,8 @@ import { NativeAudio } from '@ionic-native/native-audio/ngx';
     BrowserModule, 
     IonicModule.forRoot(), 
     AppRoutingModule,
-    HttpClientModule],    
+    HttpClientModule
+  ],
   providers: [
     StatusBar,
     SplashScreen,

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MuditaApiService } from '../services/mudita-api.service';
-import { EventObject } from 'src/app/shared/event-object.model';
-import { FenceObject } from 'src/app/shared/fence-object-model';
+import { EventModel } from 'src/app/shared/event-object.model';
+import { FenceModel } from 'src/app/shared/fence-object-model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -11,8 +11,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ["fence.page.scss"]
 })
 export class FencePage implements OnInit {
-  myEvent: EventObject;
-  myFence: FenceObject;
+  myEvent: EventModel;
+  myFence: FenceModel;
   myStyles: any;
 
   subscribeToEvent: Subscription;
@@ -20,28 +20,25 @@ export class FencePage implements OnInit {
   subscribeToEventFences: Subscription;
 
   constructor(
+    private router: Router,
     private route: ActivatedRoute,
     private muditaApiServce: MuditaApiService
-  ) {
-    this.route.params.subscribe();
+  ) {    
+    this.route.queryParams.subscribe(() => {
+      if (this.router.getCurrentNavigation().extras.state) {
+        const eventId = this.router.getCurrentNavigation().extras.state.eventId;     
+        const fenceId = this.router.getCurrentNavigation().extras.state.fenceId;   
+        this.getEventDetails(eventId);
+        this.getFenceDetails(fenceId);  
+      }
+    });
   }
 
   ngOnInit() {
-    console.log('fence page - onInit');
-    this.route.queryParams
-      .subscribe(params => {
-        const eventId = params["eventId"];
-        const fenceId = params["fenceId"];
-        //this.getEventFence(eventId, fenceId);     
-        if (eventId && fenceId) {
-          this.getEventDetails(eventId);
-          this.getFenceDetails(fenceId);
-        }
-      });      
   }
 
   getEventDetails(eventId: number) {
-    this.myEvent = new EventObject();
+    this.myEvent = new EventModel();
     this.subscribeToEvent = this.muditaApiServce.getEventDetails(eventId)
       .subscribe(event => {
         console.log('getEventDetails', event);
@@ -52,30 +49,45 @@ export class FencePage implements OnInit {
   }
 
   getFenceDetails(fenceId) {
-    this.myFence = new FenceObject();
-    this.subscribeToEvent = this.muditaApiServce.getFenceDetails(fenceId)
-      .subscribe(fence => {
-        console.log('getFenceDetails', fence);
-        this.myFence.id = fence.data["id"];
-        this.myFence.tag = fence.data["tag"];
-        this.myFence.text = fence.data["text"];
-        this.myFence.textColour = fence.data["textColour"];
-        this.myFence.bgColour = fence.data["bgColour"];
 
-        this.myStyles = {
-          'background-color': fence.data["bgColour"],
-          'font-color': fence.data["textColour"],
-          'font-size': '20px',
-          'font-weight': 'bold'
+    console.log('fenceId', fenceId);
+
+    // TODO remove - this is for dev/testing
+    this.myFence = new FenceModel();
+    if (fenceId > 9999) {
+      this.myFence = this.muditaApiServce.mockFenceDetails(fenceId);
+      this.myStyles = {
+        'background-color': this.myFence.bgColour,
+        'font-color': this.myFence.textColour,
+        'font-size': '20px',
+        'font-weight': 'bold'
+      }
+    } else {
+
+      this.subscribeToEvent = this.muditaApiServce.getFenceDetails(fenceId)
+        .subscribe(fence => {
+          console.log('getFenceDetails', fence);
+          this.myFence.id = fence.data["id"];
+          this.myFence.tag = fence.data["tag"];
+          this.myFence.text = fence.data["text"];
+          this.myFence.textColour = fence.data["textColour"];
+          this.myFence.bgColour = fence.data["bgColour"];
+
+          this.myStyles = {
+            'background-color': fence.data["bgColour"],
+            'font-color': fence.data["textColour"],
+            'font-size': '20px',
+            'font-weight': 'bold'
           }
 
-      });
+        });
+    }
   }
 
   // another option for getting event and selected fence
   getEventFence(eventId: number, fenceId: number) {
-    this.myEvent = new EventObject();
-    this.myFence = new FenceObject();
+    this.myEvent = new EventModel();
+    this.myFence = new FenceModel();
 
     this.subscribeToEventFences = this.muditaApiServce.getEventFences(eventId)
       .subscribe(eventFences => {
