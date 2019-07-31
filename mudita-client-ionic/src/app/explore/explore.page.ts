@@ -9,6 +9,7 @@ import { MuditaApiService } from '../services/mudita-api.service';
 import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { GeoMarkerIconModel } from 'src/app/shared/geo-marker-icon-object.model';
 import { PreferencesModel } from '../shared/preferences-object.model';
+import { TextToSpeech } from '@ionic-native/text-to-speech/ngx';
 
 @Component({
   selector: "app-explore",
@@ -44,6 +45,8 @@ export class ExplorePage implements OnInit {
   zoom: number;
   mapType: string;
   canSelectFence: boolean;
+  fenceIsClose: boolean;
+  fenceIsReallyClose: boolean;
 
   locationObservable: Observable<LocationModel>;
   trackingMyLocation: boolean;
@@ -64,6 +67,7 @@ export class ExplorePage implements OnInit {
   audioInterval: number;
   playLoop: any;
   isPlayingLoop: boolean;
+  currentAudioPanning: number;
 
   preferences: PreferencesModel = new PreferencesModel();
 
@@ -73,6 +77,7 @@ export class ExplorePage implements OnInit {
     private route: ActivatedRoute,
     private locationService: LocationService,
     private muditaApiServce: MuditaApiService,
+    private tts: TextToSpeech
   ) {
     this.route.queryParams.subscribe(() => {
       if (this.router.getCurrentNavigation().extras.state) {
@@ -178,15 +183,34 @@ export class ExplorePage implements OnInit {
   panAudio() {
     if(this.relativeBearing >= 350 || this.relativeBearing <= 10) {
       this.audioPannerNode.pan.value = 0
+      if(this.currentAudioPanning != 0){
+        this.speech('Geo-fence ahead');
+        this.currentAudioPanning = 0;
+      }
     }
 
     if(this.relativeBearing < 350 && this.relativeBearing >= 180) {
-      this.audioPannerNode.pan.value = -1
+      this.audioPannerNode.pan.value = 1
+      if(this.currentAudioPanning != 1){
+        this.speech('Geo-fence to your right');
+        this.currentAudioPanning = 1;
+      }
     }
 
     if(this.relativeBearing > 10 && this.relativeBearing < 180) {
-      this.audioPannerNode.pan.value = 1;
+      this.audioPannerNode.pan.value = -1;
+      if(this.currentAudioPanning != -1){
+        this.speech('Geo-fence to your left');
+        this.currentAudioPanning = -1;
+      }
     }
+  }
+
+  speech(text: string) {
+    
+    this.tts.speak(text)
+      .then(() => console.log('Success'))
+      .catch((reason: any) => console.log(reason));
   }
 
   getEventFences(eventId: number) {
@@ -315,29 +339,47 @@ export class ExplorePage implements OnInit {
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
+    if(this.myLocalFence.id != this.myFences[0].id) {
+      this.speech('New geo-fence found');
+    }
+
     this.myLocalFence = this.myFences[0];
     this.myLocalFence.geoMarkerIcon = this.geoMarkerIconHighlighted;
 
     // audio 'sonar' interval based on distance. Max = equiv 100m, otherwise it's too long a gap to be useful
     this.audioInterval = Math.ceil(this.myLocalFence.distance/10) * 200;
-    if(this.audioInterval > 2000){ this.audioInterval = 2000 };
-
-    this.canSelectFence = false;
+    if(this.audioInterval > 2000){ this.audioInterval = 2000 };    
 
     if (this.myLocalFence.distance <= this.reallyCloseMetres) {
-
-      this.statusMessage = "Geo-fence REALLY close!";
+      // Geo-fence is close enough to select
+      // Only use speech and change settings when geo-fence has first been triggered
+      if(!this.fenceIsReallyClose){
+        this.speech('Geo-fence has been triggered');
+        this.statusMessage = "Geo-fence REALLY close!";
+        this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
+        this.fenceIsReallyClose = true;
+        this.fenceIsClose = false;  
+      } 
       this.canSelectFence = true;
-      this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
 
     } else if (this.myLocalFence.distance <= this.closeMetres) {
-
-      this.statusMessage = "Geo-fence close by!"
+      // Geo-fence is in the vacinity but not close enough to select
+      // Only use speech and change settings when geo-fence first comes into the vacinity
+      if(!this.fenceIsClose){
+        this.speech('Geo-fence close by');
+        this.statusMessage = "Geo-fence close by!"  
+        this.fenceIsReallyClose = false; 
+        this.fenceIsClose = true;         
+      } 
+      this.canSelectFence = false;
 
     } else {
-
+      // No geo-fences are in the vacinity
       this.statusMessage = "No geo-fences nearby";
-      this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
+      this.myGeoMarkerIcon = this.myGeoMarkerIconRegular; 
+      this.fenceIsReallyClose = false; 
+      this.fenceIsClose = false;    
+      this.canSelectFence = false;      
     }
   }
 

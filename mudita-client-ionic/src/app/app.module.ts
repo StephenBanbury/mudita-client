@@ -12,8 +12,7 @@ import { AppComponent } from './app.component';
 
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { DeviceOrientation } from '@ionic-native/device-orientation/ngx';
-
-import { NativeAudio } from '@ionic-native/native-audio/ngx';
+import { TextToSpeech } from '@ionic-native/text-to-speech/ngx';
 
 @NgModule({
   declarations: [
@@ -32,7 +31,7 @@ import { NativeAudio } from '@ionic-native/native-audio/ngx';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Geolocation,
     DeviceOrientation,
-    NativeAudio
+    TextToSpeech
   ],
   bootstrap: [
     AppComponent
