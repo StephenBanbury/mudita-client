@@ -67,7 +67,7 @@ export class ExplorePage implements OnInit {
   audioInterval: number;
   playLoop: any;
   isPlayingLoop: boolean;
-  currentAudioPanning: number;
+  currentDirection: number;
 
   preferences: PreferencesModel = new PreferencesModel();
 
@@ -180,37 +180,43 @@ export class ExplorePage implements OnInit {
     }, this.audioInterval);
   }
 
-  panAudio() {
+  indicateDirection() {
     if(this.relativeBearing >= 350 || this.relativeBearing <= 10) {
       this.audioPannerNode.pan.value = 0
-      if(this.currentAudioPanning != 0){
-        this.speech('Geo-fence ahead');
-        this.currentAudioPanning = 0;
+      if(this.currentDirection != 0){
+        if(!this.fenceIsReallyClose){
+          this.speech(`${this.myLocalFence.tag} ahead`);
+        }
+        this.currentDirection = 0;
       }
     }
 
     if(this.relativeBearing < 350 && this.relativeBearing >= 180) {
       this.audioPannerNode.pan.value = 1
-      if(this.currentAudioPanning != 1){
-        this.speech('Geo-fence to your right');
-        this.currentAudioPanning = 1;
+      if(this.currentDirection != 1){
+        if(!this.fenceIsReallyClose){
+          this.speech(`${this.myLocalFence.tag} to your right`);
+        }
+        this.currentDirection = 1;
       }
     }
 
     if(this.relativeBearing > 10 && this.relativeBearing < 180) {
       this.audioPannerNode.pan.value = -1;
-      if(this.currentAudioPanning != -1){
-        this.speech('Geo-fence to your left');
-        this.currentAudioPanning = -1;
+      if(this.currentDirection != -1){
+        if(!this.fenceIsReallyClose){
+          this.speech(`${this.myLocalFence.tag} to your left`);
+        }
+        this.currentDirection = -1;
       }
     }
   }
 
-  speech(text: string) {
-    
+  speech(text: string) {    
+    if(this.preferences.speech){
     this.tts.speak(text)
-      .then(() => console.log('Success'))
       .catch((reason: any) => console.log(reason));
+    }
   }
 
   getEventFences(eventId: number) {
@@ -297,16 +303,16 @@ export class ExplorePage implements OnInit {
     this.router.navigate(['/tabs/fence'], navigationExtras);
   }
 
-  visualBearing(){
+  useVisualBearing(){
     this.preferences.visualBearing = !this.preferences.visualBearing;
   }
   showMap(){
     this.preferences.map = !this.preferences.map;
   }
-  showDirection(){
-    this.preferences.direction = !this.preferences.direction;
+  showRoute(){
+    this.preferences.route = !this.preferences.route;
   }
-  audioBearing(){
+  useAudioBearing(){
     this.preferences.audioBearing = !this.preferences.audioBearing;
     if(!this.preferences.audioBearing){
       clearTimeout(this.playLoop);
@@ -314,6 +320,9 @@ export class ExplorePage implements OnInit {
     }else{
       this.loopAudio()
     }
+  }
+  useSpeech(){
+    this.preferences.speech = !this.preferences.speech;
   }
 
   private checkForLocalEventFences() {
@@ -339,9 +348,9 @@ export class ExplorePage implements OnInit {
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
-    if(this.myLocalFence.id != this.myFences[0].id) {
-      this.speech('New geo-fence found');
-    }
+    // if(this.myLocalFence.id != this.myFences[0].id) {
+    //   this.speech(`${this.myLocalFence.tag} found`);
+    // }
 
     this.myLocalFence = this.myFences[0];
     this.myLocalFence.geoMarkerIcon = this.geoMarkerIconHighlighted;
@@ -354,8 +363,8 @@ export class ExplorePage implements OnInit {
       // Geo-fence is close enough to select
       // Only use speech and change settings when geo-fence has first been triggered
       if(!this.fenceIsReallyClose){
-        this.speech('Geo-fence has been triggered');
-        this.statusMessage = "Geo-fence REALLY close!";
+        this.speech(`${this.myLocalFence.tag} geo-fence has been triggered`);
+        this.statusMessage = `${this.myLocalFence.tag} REALLY close!`;
         this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
         this.fenceIsReallyClose = true;
         this.fenceIsClose = false;  
@@ -366,8 +375,8 @@ export class ExplorePage implements OnInit {
       // Geo-fence is in the vacinity but not close enough to select
       // Only use speech and change settings when geo-fence first comes into the vacinity
       if(!this.fenceIsClose){
-        this.speech('Geo-fence close by');
-        this.statusMessage = "Geo-fence close by!"  
+        this.speech(`${this.myLocalFence.tag} close by`);
+        this.statusMessage = `${this.myLocalFence.tag} close by!`  
         this.fenceIsReallyClose = false; 
         this.fenceIsClose = true;         
       } 
@@ -375,7 +384,7 @@ export class ExplorePage implements OnInit {
 
     } else {
       // No geo-fences are in the vacinity
-      this.statusMessage = "No geo-fences nearby";
+      this.statusMessage = `${this.myLocalFence.tag}: ${this.myLocalFence.distance}m`;
       this.myGeoMarkerIcon = this.myGeoMarkerIconRegular; 
       this.fenceIsReallyClose = false; 
       this.fenceIsClose = false;    
@@ -412,7 +421,7 @@ export class ExplorePage implements OnInit {
         this.myHeading = +(data.trueHeading.toFixed()); // Use data.magneticHeading?
         //this.appEventNotifications.push(`trackMyHeading: ${this.myHeading}`);
         this.relativeBearing = +(this.locationService.relativeBearing(this.myBearing, this.myHeading).toFixed());
-        this.panAudio();
+        this.indicateDirection();
       });
   }
 

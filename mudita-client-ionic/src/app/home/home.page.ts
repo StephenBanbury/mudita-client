@@ -23,8 +23,9 @@ export class HomePage implements OnInit {
     this.preferences = new PreferencesModel();  
     this.preferences.map = true;
     this.preferences.visualBearing = false;
-    this.preferences.audioBearing = true;
-    this.preferences.direction = false;
+    this.preferences.audioBearing = false;
+    this.preferences.speech = false;
+    this.preferences.route = false;
   }
 
   ngOnInit() {

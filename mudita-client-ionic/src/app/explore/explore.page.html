@@ -9,10 +9,11 @@
   <ion-content>  
     <ion-card-subtitle padding style="text-align: center">
       <div>
-        <button padding (click)="showMap()">Map</button>
-        <button padding (click)="visualBearing()">Visual</button>
-        <button padding (click)="audioBearing()">Audio</button>
-        <button padding (click)="showDirection()">Direction</button>
+        <button padding [style.color]="preferences.map ? 'red' : 'black'" (click)="showMap()">Map</button>
+        <button padding [style.color]="preferences.visualBearing ? 'red' : 'black'" (click)="useVisualBearing()">Bearing</button>
+        <button padding [style.color]="preferences.audioBearing ? 'red' : 'black'" (click)="useAudioBearing()">Sonar</button>
+        <button padding [style.color]="preferences.speech ? 'red' : 'black'" (click)="useSpeech()">Speech</button>
+        <!-- <button padding (click)="showRoute()">Route</button> -->
       </div>
       <div padding *ngIf="preferences.visualBearing">
         <!-- latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br> -->
@@ -43,7 +44,7 @@
             [label]="fence.geoMarkerLabel"
             [iconUrl]="fence.geoMarkerIcon">
           </agm-marker>       
-          <agm-direction *ngIf="preferences.direction"
+          <agm-direction *ngIf="preferences.route"
             [origin]="{ lat: myLocation.latitude, lng: myLocation.longitude }" 
             [destination]="{ lat: myLocalFence.location.latitude, lng: myLocalFence.location.longitude }">
           </agm-direction>
@@ -54,19 +55,18 @@
   </ion-content>
 
   <ion-footer>
-      <ion-card color="medium" style="text-align: center" *ngIf="myEvent">
-        <div>
-          <h3>{{ statusMessage }}</h3>
-        </div>
-        <div>
-          <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">
-            View details for {{ myLocalFence.tag }}
-          </ion-button>
-        </div>
-        <!-- <div *ngFor="let fence of myEvent.fences">
-          {{ fence.tag }} ({{ fence.distance }} m) {{ fence.show }} 
-          <b *ngIf="fence.distance <= reallyCloseMetres">... really close!</b>
-        </div> -->
-        <br>
-      </ion-card>
+    <ion-card text-center *ngIf="myEvent">        
+        <ion-item>
+          <ion-thumbnail slot="start">
+            <ion-img *ngIf="currentDirection == -1" src="../../assets/images/arrow-left-1.jpg"></ion-img>
+          </ion-thumbnail>
+          <h3 text-center>{{ statusMessage }}</h3>
+          <ion-thumbnail slot="end">
+            <ion-img *ngIf="currentDirection == 1" src="../../assets/images/arrow-right-1.jpg"></ion-img>
+          </ion-thumbnail>
+        </ion-item>
+        <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">
+          View details for {{ myLocalFence.tag }}
+        </ion-button>
+    </ion-card>
   </ion-footer>

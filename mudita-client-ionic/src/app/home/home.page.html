@@ -16,9 +16,27 @@
         (ionChange)="updatePreferences()">
       </ion-checkbox>
     </ion-item>
+  
+    <ion-item>
+      <ion-label>Speech</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.speech" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
+    </ion-item>
+  
+    <ion-item>
+      <ion-label>Sonar</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.audioBearing" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
+    </ion-item>
 
     <ion-item>
-      <ion-label>Visual Bearing</ion-label>
+      <ion-label>Bearing</ion-label>
       <ion-checkbox 
         [(ngModel)]="preferences.visualBearing" 
         disabled="false"
@@ -26,23 +44,14 @@
       </ion-checkbox>
     </ion-item>
   
-    <ion-item>
-      <ion-label>Audio Bearing</ion-label>
+    <!-- <ion-item>
+      <ion-label>Route</ion-label>
       <ion-checkbox 
-        [(ngModel)]="preferences.audioBearing" 
+        [(ngModel)]="preferences.route" 
         disabled="false"
         (ionChange)="updatePreferences()">
       </ion-checkbox>
-    </ion-item>
-  
-    <ion-item>
-      <ion-label>Direction</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.direction" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item>
+    </ion-item> -->
   
   </ion-list>
 
