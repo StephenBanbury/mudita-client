@@ -10,6 +10,7 @@ import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { GeoMarkerIconModel } from 'src/app/shared/geo-marker-icon-object.model';
 import { PreferencesModel } from '../shared/preferences-object.model';
 import { TextToSpeech } from '@ionic-native/text-to-speech/ngx';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @Component({
   selector: "app-explore",
@@ -33,7 +34,6 @@ export class ExplorePage implements OnInit {
   myGeoMarkerIconRegular: GeoMarkerIconModel;
   myGeoMarkerIconHighlighted: GeoMarkerIconModel;
 
-  //geoMarkerLabel: any;
   geoMarkerIconRegular: GeoMarkerIconModel;
   geoMarkerIconHighlighted: GeoMarkerIconModel;
 
@@ -68,6 +68,9 @@ export class ExplorePage implements OnInit {
   playLoop: any;
   isPlayingLoop: boolean;
   currentDirection: number;
+  accuracyRange: number;
+  lastSpeechAnnouncement: number;
+  timeLapseSetting: number;
 
   preferences: PreferencesModel = new PreferencesModel();
 
@@ -77,24 +80,32 @@ export class ExplorePage implements OnInit {
     private route: ActivatedRoute,
     private locationService: LocationService,
     private muditaApiServce: MuditaApiService,
-    private tts: TextToSpeech
+    private tts: TextToSpeech,
+    private screenOrientation: ScreenOrientation
   ) {
+
     this.route.queryParams.subscribe(() => {
       if (this.router.getCurrentNavigation().extras.state) {
-        this.myEvent = this.router.getCurrentNavigation().extras.state.event;     
+        const eventId = this.router.getCurrentNavigation().extras.state.eventId; 
         this.preferences = this.router.getCurrentNavigation().extras.state.preferences;
-        this.getEventFences(this.myEvent.id); 
+        this.getEventFencesAndBeginTracking(eventId);
       }
     });
 
     this.height = platform.height() - 56;
     this.myLocalFence = new FenceModel();
+    this.myLocalFence.id = -1;
     this.myLocalFence.distance = 99999999;
     this.myLocation = new LocationModel();
     this.closeMetres = 15;
     this.reallyCloseMetres = 10;
     this.zoom = 18;
+    this.accuracyRange = 20;
     this.mapType = "roadmap";
+    this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
+    this.isPlayingLoop = false;
+    this.lastSpeechAnnouncement = Date.now();
+    this.timeLapseSetting = 1000;
 
     this.myGeoMarkerLabel = {
       color: "#000",
@@ -135,29 +146,33 @@ export class ExplorePage implements OnInit {
         height: 40
       }
     };
-
-    this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
-    this.isPlayingLoop = false;
   }
 
   ngOnInit() {
     this.trackingMyLocation = false;
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);    
+    this.myLocalFence.id = -1;
+    this.canSelectFence = false;
   }
 
   ionViewWillLeave() {
     //console.log('ionViewWillLeave');
-    this.unsubscribeEventFences();
-    this.unsubscribeHeading();
-    this.unsubscribeLocation();
-    clearTimeout(this.playLoop);
-    this.isPlayingLoop = false;
+    //this.resetAllEventsAndSettings();
   }
 
   ngOnDestroy() {
     //console.log('ngOnDestroy');
+    this.resetAllEventsAndSettings();
+  }
+
+  resetAllEventsAndSettings() {
     this.unsubscribeEventFences();
     this.unsubscribeHeading();
     this.unsubscribeLocation();
+    this.myEvent = new EventModel();
+    this.myLocalFence = new FenceModel();
+    this.myLocalFence.id = -1;
+    this.canSelectFence = false;
     clearTimeout(this.playLoop);
     this.isPlayingLoop = false;
   }
@@ -176,50 +191,66 @@ export class ExplorePage implements OnInit {
     this.isPlayingLoop = true;
     this.playLoop = setTimeout(function () {
       that.audioElement.play();
-      that.loopAudio();      
+      that.loopAudio();
     }, this.audioInterval);
   }
 
   indicateDirection() {
-    if(this.relativeBearing >= 350 || this.relativeBearing <= 10) {
+    if(this.relativeBearing >= (360-this.accuracyRange) || this.relativeBearing <= this.accuracyRange) {
       this.audioPannerNode.pan.value = 0
       if(this.currentDirection != 0){
         if(!this.fenceIsReallyClose){
-          this.speech(`${this.myLocalFence.tag} ahead`);
+          if(this.timeLapsedSinceLastAnnouncement(this.timeLapseSetting)){
+            this.speech(`straight ahead`);
+          }
         }
         this.currentDirection = 0;
       }
     }
 
-    if(this.relativeBearing < 350 && this.relativeBearing >= 180) {
+    if(this.relativeBearing < (360-this.accuracyRange) && this.relativeBearing >= 180) {
       this.audioPannerNode.pan.value = 1
       if(this.currentDirection != 1){
         if(!this.fenceIsReallyClose){
-          this.speech(`${this.myLocalFence.tag} to your right`);
+          if(this.timeLapsedSinceLastAnnouncement(this.timeLapseSetting)){
+            this.speech(`to your right`);
+          }
         }
         this.currentDirection = 1;
       }
     }
 
-    if(this.relativeBearing > 10 && this.relativeBearing < 180) {
+    if(this.relativeBearing > this.accuracyRange && this.relativeBearing < 180) {
       this.audioPannerNode.pan.value = -1;
       if(this.currentDirection != -1){
         if(!this.fenceIsReallyClose){
-          this.speech(`${this.myLocalFence.tag} to your left`);
+          if(this.timeLapsedSinceLastAnnouncement(this.timeLapseSetting)){
+            this.speech(`to your left`);
+          }
         }
         this.currentDirection = -1;
       }
     }
   }
 
-  speech(text: string) {    
+  timeLapsedSinceLastAnnouncement(timeLapse: number) {
+    let timeHasLapsed = false;
+    const timeSinceLastAnnouncement = Date.now() - this.lastSpeechAnnouncement;
+    if(timeSinceLastAnnouncement > timeLapse){
+      this.lastSpeechAnnouncement = Date.now();
+      timeHasLapsed = true;
+    }
+    return timeHasLapsed;
+  }
+
+  speech(text: string) {
     if(this.preferences.speech){
     this.tts.speak(text)
       .catch((reason: any) => console.log(reason));
     }
   }
 
-  getEventFences(eventId: number) {
+  getEventFencesAndBeginTracking(eventId: number) {
     this.myEvent = new EventModel();
     this.myFences = new Array<FenceModel>();
 
@@ -293,13 +324,20 @@ export class ExplorePage implements OnInit {
     this.myFences.push(newFence);
   }
 
-  onSelectFence() {        
+  onSelectEvent() {
+    this.resetAllEventsAndSettings();
+    this.router.navigate(['/tabs/home']);
+  }
+
+  onSelectFence() {
     let navigationExtras: NavigationExtras = {
       state: {
         eventId: this.myEvent.id,
-        fenceId: this.myLocalFence.id
+        fenceId: this.myLocalFence.id,
+        preferences: this.preferences
       }
-    };    
+    };
+    this.resetAllEventsAndSettings();
     this.router.navigate(['/tabs/fence'], navigationExtras);
   }
 
@@ -344,20 +382,33 @@ export class ExplorePage implements OnInit {
       fence.geoMarkerIcon = this.geoMarkerIconRegular;
     })
 
+    // Get nearest fence
     this.myFences.sort((a, b) =>
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
-    // if(this.myLocalFence.id != this.myFences[0].id) {
-    //   this.speech(`${this.myLocalFence.tag} found`);
-    // }
+
+    if(this.myLocalFence.id == -1){
+      // First geofence found
+      this.speech(`${this.myFences[0].tag} found`);
+      // Set last announcement to 1 second in the future to allow time for announcement
+      // in case another is following very quickly, i.e. left, right etc.
+      this.lastSpeechAnnouncement = Date.now() + 1000;
+
+    } else if(this.myLocalFence.id != this.myFences[0].id) {
+      // New geofence found
+      this.speech(`${this.myLocalFence.tag} found`);
+      // Set last announcement to 1 second in the future to allow time for announcement
+      // in case another is following very quickly, i.e. left, right etc.
+      this.lastSpeechAnnouncement = Date.now() + 1000;
+    }
 
     this.myLocalFence = this.myFences[0];
     this.myLocalFence.geoMarkerIcon = this.geoMarkerIconHighlighted;
 
     // audio 'sonar' interval based on distance. Max = equiv 100m, otherwise it's too long a gap to be useful
     this.audioInterval = Math.ceil(this.myLocalFence.distance/10) * 200;
-    if(this.audioInterval > 2000){ this.audioInterval = 2000 };    
+    if(this.audioInterval > 2000){ this.audioInterval = 2000 };
 
     if (this.myLocalFence.distance <= this.reallyCloseMetres) {
       // Geo-fence is close enough to select
@@ -367,8 +418,8 @@ export class ExplorePage implements OnInit {
         this.statusMessage = `${this.myLocalFence.tag} REALLY close!`;
         this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
         this.fenceIsReallyClose = true;
-        this.fenceIsClose = false;  
-      } 
+        this.fenceIsClose = false;
+      }
       this.canSelectFence = true;
 
     } else if (this.myLocalFence.distance <= this.closeMetres) {
@@ -376,19 +427,19 @@ export class ExplorePage implements OnInit {
       // Only use speech and change settings when geo-fence first comes into the vacinity
       if(!this.fenceIsClose){
         this.speech(`${this.myLocalFence.tag} close by`);
-        this.statusMessage = `${this.myLocalFence.tag} close by!`  
-        this.fenceIsReallyClose = false; 
-        this.fenceIsClose = true;         
-      } 
+        this.statusMessage = `${this.myLocalFence.tag} close by!`
+        this.fenceIsReallyClose = false;
+        this.fenceIsClose = true;
+      }
       this.canSelectFence = false;
 
     } else {
       // No geo-fences are in the vacinity
       this.statusMessage = `${this.myLocalFence.tag}: ${this.myLocalFence.distance}m`;
-      this.myGeoMarkerIcon = this.myGeoMarkerIconRegular; 
-      this.fenceIsReallyClose = false; 
-      this.fenceIsClose = false;    
-      this.canSelectFence = false;      
+      this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
+      this.fenceIsReallyClose = false;
+      this.fenceIsClose = false;
+      this.canSelectFence = false;
     }
   }
 
@@ -401,8 +452,8 @@ export class ExplorePage implements OnInit {
 
         if(!this.isPlayingLoop){
           this.audioInit();
-          if(this.preferences.audioBearing){ 
-            this.loopAudio(); 
+          if(this.preferences.audioBearing){
+            this.loopAudio();
           }
         }
 
@@ -441,9 +492,9 @@ export class ExplorePage implements OnInit {
   calculateBearing() {
     // calculate bearing to closest fence location
     let bearing = this.locationService.bearing(
-      this.myLocation.latitude, 
+      this.myLocation.latitude,
       this.myLocation.longitude,
-      this.myLocalFence.location.latitude, 
+      this.myLocalFence.location.latitude,
       this.myLocalFence.location.longitude);
 
     this.myBearing = +(bearing.toFixed());

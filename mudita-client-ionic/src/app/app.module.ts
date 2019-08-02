@@ -12,6 +12,7 @@ import { AppComponent } from './app.component';
 
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { DeviceOrientation } from '@ionic-native/device-orientation/ngx';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 import { TextToSpeech } from '@ionic-native/text-to-speech/ngx';
 
 @NgModule({
@@ -31,6 +32,7 @@ import { TextToSpeech } from '@ionic-native/text-to-speech/ngx';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     Geolocation,
     DeviceOrientation,
+    ScreenOrientation,
     TextToSpeech
   ],
   bootstrap: [

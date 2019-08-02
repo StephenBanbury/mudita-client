@@ -25,20 +25,20 @@
         (ionChange)="updatePreferences()">
       </ion-checkbox>
     </ion-item>
+
+    <ion-item>
+      <ion-label>Visual Cue</ion-label>
+      <ion-checkbox 
+        [(ngModel)]="preferences.visualBearing" 
+        disabled="false"
+        (ionChange)="updatePreferences()">
+      </ion-checkbox>
+    </ion-item>
   
     <ion-item>
       <ion-label>Sonar</ion-label>
       <ion-checkbox 
         [(ngModel)]="preferences.audioBearing" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Bearing</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.visualBearing" 
         disabled="false"
         (ionChange)="updatePreferences()">
       </ion-checkbox>

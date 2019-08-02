@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationExtras } from '@angular/router';
 import { MuditaApiService } from '../services/mudita-api.service';
 import { EventModel } from 'src/app/shared/event-object.model';
 import { FenceModel } from 'src/app/shared/fence-object-model';
 import { Subscription } from 'rxjs';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
+import { PreferencesModel } from '../shared/preferences-object.model';
 
 @Component({
   selector: "app-fence",
@@ -19,15 +21,19 @@ export class FencePage implements OnInit {
   subscribeToFence: Subscription;
   subscribeToEventFences: Subscription;
 
+  preferences: PreferencesModel = new PreferencesModel();
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private muditaApiServce: MuditaApiService
+    private muditaApiServce: MuditaApiService,
+    private screenOrientation: ScreenOrientation
   ) {    
     this.route.queryParams.subscribe(() => {
       if (this.router.getCurrentNavigation().extras.state) {
         const eventId = this.router.getCurrentNavigation().extras.state.eventId;     
-        const fenceId = this.router.getCurrentNavigation().extras.state.fenceId;   
+        const fenceId = this.router.getCurrentNavigation().extras.state.fenceId;  
+        this.preferences = this.router.getCurrentNavigation().extras.state.preferences; 
         this.getEventDetails(eventId);
         this.getFenceDetails(fenceId);  
       }
@@ -35,6 +41,7 @@ export class FencePage implements OnInit {
   }
 
   ngOnInit() {
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
   }
 
   getEventDetails(eventId: number) {
@@ -107,10 +114,19 @@ export class FencePage implements OnInit {
       });
   }
   
-  // private getImage() {
-  //   this.muditaApiServce.getImage().subscribe(
-  //     photo => this.imageJsons.push(photo[0]) //.urls.raw + '&w=1500&dpi=2') // width + dpi
-  //     //console.log(photo[0].urls.raw + '&w=1500&dpi=2')
-  //   );
-  // }
+  resetAllEventsAndSettings() {
+    this.myEvent = new EventModel();
+    this.myFence = new FenceModel();
+  }
+
+  onContinue() {    
+    let navigationExtras: NavigationExtras = {
+      state: {
+        eventId: this.myEvent.id,
+        preferences: this.preferences
+      }
+    };
+    this.resetAllEventsAndSettings();
+    this.router.navigate(['/tabs/explore/'], navigationExtras);
+  }
 }

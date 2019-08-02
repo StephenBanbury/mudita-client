@@ -15,13 +15,17 @@
         <button padding [style.color]="preferences.speech ? 'red' : 'black'" (click)="useSpeech()">Speech</button>
         <!-- <button padding (click)="showRoute()">Route</button> -->
       </div>
-      <div padding *ngIf="preferences.visualBearing">
+      <!-- <div padding *ngIf="preferences.visualBearing"> -->
         <!-- latidude: {{ myLocation.latitude }} longitude: {{ myLocation.longitude }}<br> -->
         <!-- audioInterval: {{ audioInterval }}<br> -->
         <!-- distance to {{ myLocalFence.tag }}: {{ myLocalFence.distance }} m<br> -->
         <!-- closest geo-fence : {{ myLocalFence.tag }}<br> -->
-        distance: {{ myLocalFence.distance }} | bearing: {{ myHeading - myBearing }}
-      </div>
+        <!-- distance: {{ myLocalFence.distance }} | bearing: {{ myHeading - myBearing }} -->
+      <!-- </div> -->
+      
+    <ion-button (click)="onSelectEvent()">
+      Select Event
+    </ion-button>
     </ion-card-subtitle>
     <div *ngIf="preferences.map">
       <agm-map #map      
@@ -51,18 +55,39 @@
         </div> 
       </agm-map>
     </div>
-  
   </ion-content>
 
   <ion-footer>
     <ion-card text-center *ngIf="myEvent">        
-        <ion-item>
+        <ion-item text-center>
           <ion-thumbnail slot="start">
-            <ion-img *ngIf="currentDirection == -1" src="../../assets/images/arrow-left-1.jpg"></ion-img>
+            <ion-img 
+              *ngIf="preferences.visualBearing && currentDirection == 0" 
+              src="../../assets/images/arrow-up-1.jpg">
+            </ion-img>
+            <ion-img 
+              *ngIf="preferences.visualBearing && currentDirection == -1" 
+              src="../../assets/images/arrow-left-1.jpg">
+            </ion-img>
+            <ion-img 
+              *ngIf="preferences.visualBearing && currentDirection == 1" 
+              src="../../assets/images/arrow-right-1.jpg">
+            </ion-img>
           </ion-thumbnail>
-          <h3 text-center>{{ statusMessage }}</h3>
+          <h3>{{ statusMessage }}</h3>
           <ion-thumbnail slot="end">
-            <ion-img *ngIf="currentDirection == 1" src="../../assets/images/arrow-right-1.jpg"></ion-img>
+            <ion-img 
+              *ngIf="preferences.visualBearing && currentDirection == 0 " 
+              src="../../assets/images/arrow-up-1.jpg">
+            </ion-img>
+            <ion-img 
+              *ngIf="preferences.visualBearing && currentDirection == -1" 
+              src="../../assets/images/arrow-left-1.jpg">
+            </ion-img>
+            <ion-img 
+              *ngIf="preferences.visualBearing && currentDirection == 1" 
+              src="../../assets/images/arrow-right-1.jpg">
+            </ion-img>
           </ion-thumbnail>
         </ion-item>
         <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">

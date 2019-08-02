@@ -3,6 +3,7 @@ import { EventModel } from '../shared/event-object.model'
 import { MuditaApiService } from '../services/mudita-api.service';
 import { Router, NavigationExtras } from '@angular/router';
 import { PreferencesModel } from '../shared/preferences-object.model';
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
 
 @Component({
   selector: "app-home",
@@ -16,20 +17,22 @@ export class HomePage implements OnInit {
 
   constructor(
     private muditaApiServce: MuditaApiService, 
-    private router: Router
+    private router: Router,
+    private screenOrientation: ScreenOrientation
   ) {
     this.events = new Array<EventModel>();  
 
     this.preferences = new PreferencesModel();  
     this.preferences.map = true;
-    this.preferences.visualBearing = false;
+    this.preferences.visualBearing = true;
     this.preferences.audioBearing = false;
-    this.preferences.speech = false;
+    this.preferences.speech = true;
     this.preferences.route = false;
   }
 
   ngOnInit() {
     this.getEvents();
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);
   }
 
   updatePreferences() {
@@ -51,15 +54,13 @@ export class HomePage implements OnInit {
     );
   }
 
-  onSelectEvent(event: EventModel) {
-    
+  onSelectEvent(event: EventModel) {    
     let navigationExtras: NavigationExtras = {
       state: {
-        event: event,
+        eventId: event.id,
         preferences: this.preferences
       }
     };
-
     this.router.navigate(['/tabs/explore/'], navigationExtras);
   }
 
