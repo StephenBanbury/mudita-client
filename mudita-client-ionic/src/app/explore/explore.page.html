@@ -22,9 +22,14 @@
         <!-- closest geo-fence : {{ myLocalFence.tag }}<br> -->
         <!-- distance: {{ myLocalFence.distance }} | bearing: {{ myHeading - myBearing }} -->
       <!-- </div> -->
-      
+      <div>
+        {{ this.currentFencePointer }} | {{ this.myCurrentFence.id }}
+      </div>
     <ion-button (click)="onSelectEvent()">
       Select Event
+    </ion-button>
+    <ion-button (click)="onSelectNextFence()">
+      Next GeoFence
     </ion-button>
     </ion-card-subtitle>
     <div *ngIf="preferences.map">
@@ -90,7 +95,7 @@
             </ion-img>
           </ion-thumbnail>
         </ion-item>
-        <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">
+        <ion-button *ngIf="canViewCurrentFence" (click)="onViewCurrentFenceDetails()">
           View details for {{ myLocalFence.tag }}
         </ion-button>
     </ion-card>

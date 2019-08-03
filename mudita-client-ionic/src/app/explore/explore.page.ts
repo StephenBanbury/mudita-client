@@ -169,12 +169,16 @@ export class ExplorePage implements OnInit {
     this.unsubscribeEventFences();
     this.unsubscribeHeading();
     this.unsubscribeLocation();
+    this.trackingMyLocation = false;
     this.myEvent = new EventModel();
     this.myLocalFence = new FenceModel();
     this.myLocalFence.id = -1;
+    this.myLocalFence.distance = 99999999;
+    this.myLocation = new LocationModel();
+    this.lastSpeechAnnouncement = Date.now();
     this.canSelectFence = false;
-    clearTimeout(this.playLoop);
     this.isPlayingLoop = false;
+    clearTimeout(this.playLoop);
   }
 
   audioInit() {
@@ -356,7 +360,8 @@ export class ExplorePage implements OnInit {
       clearTimeout(this.playLoop);
       this.isPlayingLoop = false;
     }else{
-      this.loopAudio()
+      this.audioInit();
+      this.loopAudio();
     }
   }
   useSpeech(){
