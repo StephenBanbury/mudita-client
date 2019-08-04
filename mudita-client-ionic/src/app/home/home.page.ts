@@ -14,6 +14,7 @@ export class HomePage implements OnInit {
   events: Array<EventModel>;
   eventIsSelected: boolean;
   preferences: PreferencesModel;
+  title: string = "Mudita Events";
 
   constructor(
     private muditaApiServce: MuditaApiService, 

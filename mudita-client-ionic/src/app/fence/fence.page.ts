@@ -86,7 +86,6 @@ export class FencePage implements OnInit {
             'font-size': '20px',
             'font-weight': 'bold'
           }
-
         });
     }
   }

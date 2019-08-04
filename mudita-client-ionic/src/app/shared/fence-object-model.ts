@@ -15,4 +15,5 @@ export class FenceModel {
   public text: string;
   public textColour: string;
   public bgColour: string;
+  public triggered: boolean;
 }

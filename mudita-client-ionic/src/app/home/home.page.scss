@@ -1,5 +1,5 @@
-ion-content {
-  --background: url(../../assets/images/water.jpg) no-repeat center/cover fixed;
+.bg-class{
+  --background: linear-gradient(to bottom, #007c89, #003e45) !important;
 }
 
 .mudita-button ion-button {
@@ -9,4 +9,41 @@ ion-content {
 .button-list {
   background-color: transparent;
   text-align: center;
+  font-size: 10px;
+}
+
+.button {
+  background-color: #00918a;
+  color: black;
+  font-size: 2em;
+}
+
+.preference-item  {
+  background-color: #00918a; 
+  color: #00918a;
+  font-size: 1em;
+}
+
+.Rectangle-2 {
+  width: 375px;
+  height: 667px;
+  border-radius: 10px;
+  box-shadow: 0 0 30px 0 rgba(168, 168, 168, 0.3);
+  background-image: linear-gradient(to bottom, #007c89, #003e45);
+}
+
+.image-container img {
+  position:absolute;
+  left: 0;
+  right: 0;
+  margin:0 auto;
+  top:0%;  
+}
+
+.lists-container {
+  position:absolute;
+  left: 0;
+  right: 0;
+  margin:0 auto;
+  top:40%;  
 }

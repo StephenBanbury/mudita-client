@@ -24,8 +24,7 @@ export class ExplorePage implements OnInit {
   //appEventNotifications: Array<string> = [];
 
   myFences: Array<FenceModel> = [];
-  myLocalFence: FenceModel;
-  title: string = "Mudita Events";
+  myLocalFence: FenceModel;  
   height = 0;
   myLocation: LocationModel;
 
@@ -36,6 +35,7 @@ export class ExplorePage implements OnInit {
 
   geoMarkerIconRegular: GeoMarkerIconModel;
   geoMarkerIconHighlighted: GeoMarkerIconModel;
+  geoMarkerIconTriggered: GeoMarkerIconModel;
 
   eventId: number;
   closeMetres: number;
@@ -97,11 +97,11 @@ export class ExplorePage implements OnInit {
     this.myLocalFence.id = -1;
     this.myLocalFence.distance = 99999999;
     this.myLocation = new LocationModel();
-    this.closeMetres = 15;
+    this.closeMetres = 20;
     this.reallyCloseMetres = 10;
     this.zoom = 18;
     this.accuracyRange = 20;
-    this.mapType = "roadmap";
+    this.mapType = "roadmap"; // roadmap, satellite, hybrid
     this.myGeoMarkerIcon = this.myGeoMarkerIconRegular;
     this.isPlayingLoop = false;
     this.lastSpeechAnnouncement = Date.now();
@@ -146,6 +146,14 @@ export class ExplorePage implements OnInit {
         height: 40
       }
     };
+
+    this.geoMarkerIconTriggered = {
+      url: "http://labs.google.com/ridefinder/images/mm_20_gray.png",
+      scaledSize: {
+        width: 40,
+        height: 40
+      }
+    };
   }
 
   ngOnInit() {
@@ -153,11 +161,6 @@ export class ExplorePage implements OnInit {
     this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT);    
     this.myLocalFence.id = -1;
     this.canSelectFence = false;
-  }
-
-  ionViewWillLeave() {
-    //console.log('ionViewWillLeave');
-    //this.resetAllEventsAndSettings();
   }
 
   ngOnDestroy() {
@@ -286,7 +289,8 @@ export class ExplorePage implements OnInit {
             geoMarkerIcon: this.geoMarkerIconRegular,
             text: "",
             textColour: "",
-            bgColour: ""
+            bgColour: "",
+            triggered: false
           })
         })
 
@@ -325,7 +329,18 @@ export class ExplorePage implements OnInit {
       fontWeight: "bold",
       text: newFence.tag
     };
+    newFence.triggered = false;
     this.myFences.push(newFence);
+  }
+
+  onSelectMapType() {
+    if(this.mapType == 'roadmap'){
+      this.mapType = 'satellite'
+    } else if(this.mapType == 'satellite') {
+      this.mapType = 'hybrid'
+    } else {
+      this.mapType = 'roadmap'
+    }
   }
 
   onSelectEvent() {
@@ -334,6 +349,7 @@ export class ExplorePage implements OnInit {
   }
 
   onSelectFence() {
+    this.myFences[0].triggered = true;
     let navigationExtras: NavigationExtras = {
       state: {
         eventId: this.myEvent.id,
@@ -376,6 +392,9 @@ export class ExplorePage implements OnInit {
       return false;
     }
 
+    // this.myFences = this.myFences.filter(f => f.triggered == false);
+    // let myTriggeredFences = this.myFences.filter(f => f.triggered == true);
+
     this.myFences.forEach(fence => {
       fence.distance = Math.round(
         this.locationService.getDistanceFromLatLonInKm(
@@ -392,6 +411,11 @@ export class ExplorePage implements OnInit {
       a.distance < b.distance ? -1 : a.distance > b.distance ? 1 : 0
     );
 
+    // myTriggeredFences.forEach(f => {
+    //   f.geoMarkerIcon = this.geoMarkerIconRegular;
+    //   this.myFences.push(f);
+    //   }
+    //)
 
     if(this.myLocalFence.id == -1){
       // First geofence found
@@ -402,7 +426,7 @@ export class ExplorePage implements OnInit {
 
     } else if(this.myLocalFence.id != this.myFences[0].id) {
       // New geofence found
-      this.speech(`${this.myLocalFence.tag} found`);
+      this.speech(`${this.myFences[0].tag} has been found`);
       // Set last announcement to 1 second in the future to allow time for announcement
       // in case another is following very quickly, i.e. left, right etc.
       this.lastSpeechAnnouncement = Date.now() + 1000;
@@ -419,7 +443,7 @@ export class ExplorePage implements OnInit {
       // Geo-fence is close enough to select
       // Only use speech and change settings when geo-fence has first been triggered
       if(!this.fenceIsReallyClose){
-        this.speech(`${this.myLocalFence.tag} geo-fence has been triggered`);
+        this.speech(`${this.myLocalFence.tag} has been triggered`);
         this.statusMessage = `${this.myLocalFence.tag} REALLY close!`;
         this.myGeoMarkerIcon = this.myGeoMarkerIconHighlighted;
         this.fenceIsReallyClose = true;

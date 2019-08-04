@@ -6,13 +6,37 @@
     </ion-toolbar>
   </ion-header>
 
-  <ion-content>  
+  <ion-content class="bg-class">  
     <ion-card-subtitle padding style="text-align: center">
       <div>
-        <button padding [style.color]="preferences.map ? 'red' : 'black'" (click)="showMap()">Map</button>
-        <button padding [style.color]="preferences.visualBearing ? 'red' : 'black'" (click)="useVisualBearing()">Bearing</button>
-        <button padding [style.color]="preferences.audioBearing ? 'red' : 'black'" (click)="useAudioBearing()">Sonar</button>
-        <button padding [style.color]="preferences.speech ? 'red' : 'black'" (click)="useSpeech()">Speech</button>
+        <button 
+          padding 
+          [style.color]="preferences.map ? '#000' : '#dbd9d2'" 
+          [style.background-color]="preferences.map ? '#00918a' : '#b7a9a1'" 
+          (click)="showMap()">
+          Map
+        </button>
+        <button 
+          padding 
+          [style.color]="preferences.visualBearing ? '#000' : '#dbd9d2'" 
+          [style.background-color]="preferences.visualBearing ? '#00918a' : '#b7a9a1'" 
+          (click)="useVisualBearing()">
+          Bearing
+        </button>
+        <button 
+          padding 
+          [style.color]="preferences.audioBearing ? '#000' : '#dbd9d2'" 
+          [style.background-color]="preferences.audioBearing ? '#00918a' : '#b7a9a1'" 
+          (click)="useAudioBearing()">
+          Sonar
+        </button>
+        <button 
+          padding 
+          [style.color]="preferences.speech ? '#000' : '#dbd9d2'" 
+          [style.background-color]="preferences.speech ? '#00918a' : '#b7a9a1'" 
+          (click)="useSpeech()">
+          Speech
+        </button>
         <!-- <button padding (click)="showRoute()">Route</button> -->
       </div>
       <!-- <div padding *ngIf="preferences.visualBearing"> -->
@@ -22,15 +46,12 @@
         <!-- closest geo-fence : {{ myLocalFence.tag }}<br> -->
         <!-- distance: {{ myLocalFence.distance }} | bearing: {{ myHeading - myBearing }} -->
       <!-- </div> -->
-      <div>
-        {{ this.currentFencePointer }} | {{ this.myCurrentFence.id }}
-      </div>
     <ion-button (click)="onSelectEvent()">
       Select Event
-    </ion-button>
-    <ion-button (click)="onSelectNextFence()">
-      Next GeoFence
-    </ion-button>
+    </ion-button>    
+    <ion-button (click)="onSelectMapType()">
+      {{ this.mapType }}
+    </ion-button>    
     </ion-card-subtitle>
     <div *ngIf="preferences.map">
       <agm-map #map      
@@ -95,7 +116,7 @@
             </ion-img>
           </ion-thumbnail>
         </ion-item>
-        <ion-button *ngIf="canViewCurrentFence" (click)="onViewCurrentFenceDetails()">
+        <ion-button *ngIf="canSelectFence" (click)="onSelectFence()">
           View details for {{ myLocalFence.tag }}
         </ion-button>
     </ion-card>

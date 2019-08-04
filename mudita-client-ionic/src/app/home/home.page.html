@@ -1,58 +1,50 @@
-<ion-content>
-  <ion-card>
-    <ion-img src="/assets/images/rectangle-16.png"></ion-img>
+<ion-content class="bg-class">
+  <!-- <ion-toolbar color="primary"  style="text-align: center">
+      <ion-title>
+          {{ title }}
+      </ion-title>
+  </ion-toolbar> -->
+  <section class="image-container">
+    <img src="/assets/images/rectangle-16.png" style="width: 70%">
+  </section>
+  <section class="lists-container">
+    <ion-card>
+    <ion-list class="button-list" *ngFor="let event of events">
+      <button class="button" (click)="onSelectEvent(event)">{{ event.title }}</button>
+    </ion-list>
   </ion-card>
-  <ion-list class="button-list" *ngFor="let event of events">
-      <button (click)="onSelectEvent(event)">{{ event.title }}</button>
-  </ion-list>
-
-  <ion-list>
-  
-    <ion-item>
-      <ion-label>Map</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.map" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item>
-  
-    <ion-item>
-      <ion-label>Speech</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.speech" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item>
-
-    <ion-item>
-      <ion-label>Visual Cue</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.visualBearing" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item>
-  
-    <ion-item>
-      <ion-label>Sonar</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.audioBearing" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item>
-  
-    <!-- <ion-item>
-      <ion-label>Route</ion-label>
-      <ion-checkbox 
-        [(ngModel)]="preferences.route" 
-        disabled="false"
-        (ionChange)="updatePreferences()">
-      </ion-checkbox>
-    </ion-item> -->
-  
-  </ion-list>
-
+    <br>
+    <ion-card>
+      <!-- <ion-list> -->
+      <ion-item class="preference-item">
+        <ion-label>Map</ion-label>
+        <ion-checkbox [(ngModel)]="preferences.map" disabled="false" (ionChange)="updatePreferences()">
+        </ion-checkbox>
+      </ion-item>
+      <ion-item class="preference-item">
+        <ion-label>Speech</ion-label>
+        <ion-checkbox [(ngModel)]="preferences.speech" disabled="false" (ionChange)="updatePreferences()">
+        </ion-checkbox>
+      </ion-item>
+      <ion-item class="preference-item">
+        <ion-label>Visual Cue</ion-label>
+        <ion-checkbox [(ngModel)]="preferences.visualBearing" disabled="false" (ionChange)="updatePreferences()">
+        </ion-checkbox>
+      </ion-item>
+      <ion-item class="preference-item">
+        <ion-label>Sonar</ion-label>
+        <ion-checkbox [(ngModel)]="preferences.audioBearing" disabled="false" (ionChange)="updatePreferences()">
+        </ion-checkbox>
+      </ion-item>
+      <!-- <ion-item>
+        <ion-label>Route</ion-label>
+        <ion-checkbox 
+          [(ngModel)]="preferences.route" 
+          disabled="false"
+          (ionChange)="updatePreferences()">
+        </ion-checkbox>
+      </ion-item> -->
+      <!-- </ion-list> -->
+    </ion-card>
+  </section>
 </ion-content>

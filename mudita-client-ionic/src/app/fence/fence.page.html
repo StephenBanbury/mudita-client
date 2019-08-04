@@ -4,9 +4,9 @@
   </ion-toolbar>
 </ion-header>
 <br><br>
-<ion-content>
+<ion-content class="bg-class">
   <ion-label text-center>
-    <h2>{{ myEvent.description }}</h2>
+    <h1>{{ myEvent.description }}</h1>
   </ion-label>  
   <br><hr><br>
   <ion-card [ngStyle]="myStyles">
@@ -17,7 +17,7 @@
   <ion-footer>
     <ion-card text-center>
       <ion-item text-center>
-          <ion-button (click)="onContinue()">
+          <ion-button text-center (click)="onContinue()">
             Continue
           </ion-button>
       </ion-item>
