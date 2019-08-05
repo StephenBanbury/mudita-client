@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IUnsplashImage } from '../shared/unsplash-image';
-import { EventModel } from '../shared/event-object.model';
 import { Observable } from 'rxjs';
 //import { MockEventApi as MockEventApi, MockLocationApi } from '../shared/mock-api';
 import { IEvents } from '../shared/events-interface.model'
 import { IEventFences } from 'src/app/shared/event-fences-interface.model';
-import { LocationModel } from 'src/app/shared/location-object.model';
 import { IFence } from 'src/app/shared/fence-interface.model';
 import { FenceModel } from '../shared/fence-object-model';
 
@@ -21,9 +18,7 @@ import { FenceModel } from '../shared/fence-object-model';
 export class MuditaApiService {
 
   private API_URL_BASE = "https://mudita.fun/api";
-  private API_CURR_VERSION = "v1";  
-  private imageApiUrl = "https://api.unsplash.com/photos/random?count=1&client_id=";
-  private imageApiKey = "f820c8f4a1e26ac5ed9c1489f3bf986caaaf3215eb863b62f3ec240a00003209";
+  private API_CURR_VERSION = "v1"; 
 
   constructor(private http: HttpClient) { }
 
@@ -84,17 +79,4 @@ export class MuditaApiService {
   //   })
   //   return locations;
   // }
-
-  getImage() {
-    const url = this.imageApiUrl + this.imageApiKey;
-    return this.http.get<IUnsplashImage>(url);
-  }
-
-  getText() {
-
-  }
-
-  getSound() {
-
-  }
 }
