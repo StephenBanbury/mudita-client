@@ -306,31 +306,32 @@ export class ExplorePage implements OnInit {
   nextFenceId() {
     return this.myFences.length + 9999;
   }
-
+  
+  // For dev and testing purposes only
   onCreateNewFence(event) {
-    if (!this.myEvent) {
-      return;
-    }
-    const newFence = new FenceModel();
-    const newFenceLocation = new LocationModel();
+  //   if (!this.myEvent) {
+  //     return;
+  //   }
+  //   const newFence = new FenceModel();
+  //   const newFenceLocation = new LocationModel();
 
-    newFence.id = this.nextFenceId();
+  //   newFence.id = this.nextFenceId();
 
-    newFenceLocation.latitude = event.coords.lat;
-    newFenceLocation.longitude = event.coords.lng;
+  //   newFenceLocation.latitude = event.coords.lat;
+  //   newFenceLocation.longitude = event.coords.lng;
 
-    newFence.location = newFenceLocation;
-    newFence.tag = "New fence " + (this.myFences.length + 1).toString();
-    newFence.show = true;
-    newFence.geoMarkerLabel = {
-      color: "#000",
-      fontFamily: "",
-      fontSize: "16px",
-      fontWeight: "bold",
-      text: newFence.tag
-    };
-    newFence.triggered = false;
-    this.myFences.push(newFence);
+  //   newFence.location = newFenceLocation;
+  //   newFence.tag = "New fence " + (this.myFences.length + 1).toString();
+  //   newFence.show = true;
+  //   newFence.geoMarkerLabel = {
+  //     color: "#000",
+  //     fontFamily: "",
+  //     fontSize: "16px",
+  //     fontWeight: "bold",
+  //     text: newFence.tag
+  //   };
+  //   newFence.triggered = false;
+  //   this.myFences.push(newFence);
   }
 
   onSelectMapType() {
